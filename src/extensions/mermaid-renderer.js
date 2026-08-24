@@ -26,7 +26,15 @@ const mermaidExtension = {
     }
   },
   renderer(token) {
-    return `<pre class="mermaid">${token.code}</pre>`;
+    // Escape so the source survives innerHTML parsing intact: a literal
+    // </pre> or tag-like text in a diagram must not become real markup.
+    // mermaid entity-decodes when it reads the element, and textContent
+    // then equals the raw source (which the SVG cache key relies on).
+    const escaped = token.code
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;');
+    return `<pre class="mermaid">${escaped}</pre>`;
   },
 };
 

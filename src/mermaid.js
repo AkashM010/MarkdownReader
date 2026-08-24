@@ -3,33 +3,37 @@
  */
 import mermaid from 'mermaid';
 
+const FONT_STACK = "'Space Grotesk', 'Segoe UI', system-ui, sans-serif";
+
 export function updateMermaidTheme(theme) {
   if (theme === 'dark') {
     mermaid.initialize({
+      suppressErrorRendering: true,
       theme: 'base',
       themeVariables: {
         background: 'transparent',
-        primaryColor: '#818cf8',
-        primaryBorderColor: '#6366f1',
-        primaryTextColor: '#e2e8f0',
-        lineColor: '#64748b',
-        secondaryColor: '#1e293b',
-        tertiaryColor: '#0f172a',
-        fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+        primaryColor: '#134e4a',
+        primaryBorderColor: '#2dd4bf',
+        primaryTextColor: '#e8edf4',
+        lineColor: '#5f6b7c',
+        secondaryColor: '#131b2a',
+        tertiaryColor: '#0d1320',
+        fontFamily: FONT_STACK,
       },
     });
   } else {
     mermaid.initialize({
+      suppressErrorRendering: true,
       theme: 'base',
       themeVariables: {
         background: 'transparent',
-        primaryColor: '#4f46e5',
-        primaryBorderColor: '#4338ca',
-        primaryTextColor: '#1e293b',
-        lineColor: '#94a3b8',
-        secondaryColor: '#f1f5f9',
-        tertiaryColor: '#ffffff',
-        fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+        primaryColor: '#ccfbf1',
+        primaryBorderColor: '#0d9488',
+        primaryTextColor: '#262b36',
+        lineColor: '#99a0ab',
+        secondaryColor: '#f2efe8',
+        tertiaryColor: '#fcfbf9',
+        fontFamily: FONT_STACK,
       },
     });
   }

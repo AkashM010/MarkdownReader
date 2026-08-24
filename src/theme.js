@@ -10,8 +10,8 @@ export function initTheme(toggleEl, labelEl, onToggle) {
   themeToggle = toggleEl;
   themeLabel = labelEl;
   onThemeChange = onToggle;
-
-  themeToggle.addEventListener('click', toggleTheme);
+  // Note: the toggle button's click handler is bound by the caller
+  // (main.js) so it can add user feedback around toggleTheme().
 }
 
 export function getTheme() {
@@ -19,10 +19,8 @@ export function getTheme() {
 }
 
 export function setTheme(theme) {
+  // The toggle's sun/moon icons flip via CSS keyed off this attribute.
   document.documentElement.setAttribute('data-theme', theme);
-  if (themeToggle) {
-    themeToggle.textContent = theme === 'dark' ? '🌙' : '☀️';
-  }
   if (themeLabel) {
     themeLabel.textContent = theme === 'dark' ? 'Dark' : 'Light';
   }

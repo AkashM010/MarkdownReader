@@ -1,34 +1,32 @@
 /**
  * Main entry point — wires together all modules.
  */
-import { initTheme, setTheme, loadSavedTheme } from './theme.js';
+import { initTheme, setTheme, toggleTheme, loadSavedTheme } from './theme.js';
 import { updateMermaidTheme } from './mermaid.js';
 import { initEditor, setEditorContent, getEditorContent, updateAll } from './editor.js';
-import { initPreview, scheduleRender, renderNow } from './preview.js';
-import { initFileIO } from './fileIO.js';
+import { initPreview, scheduleRender, renderNow, invalidateMermaidCache } from './preview.js';
+import { initFileIO, markDirty, getFileName, restoreFileName } from './fileIO.js';
+import { initPersistence, loadDraft, scheduleAutosave, flushDraft } from './persistence.js';
+import { initScrollSync } from './scrollsync.js';
+import { initOutline } from './outline.js';
 
 // ──────────────────────────────────────
 // Default content
 // ──────────────────────────────────────
-const defaultContent = `# Welcome to Markdown Reader 📝
+const defaultContent = `# A quiet place to write
 
-A modern, dual-pane Markdown editor with **live preview**, **Mermaid diagrams**, and **GitHub-flavored alerts**.
+Write on the left, read on the right. This document walks through everything the reader can render — edit it freely, or drop any \`.md\` file onto the window to open it. Your work autosaves to this browser as you type, and opened files can be saved back in place with \`Ctrl+S\`.
 
----
+## Typography
 
-## ✨ Features
+Prose is set in a proper reading face, so **bold**, *italic*, and [links](https://commonmark.org) sit comfortably in long-form text. Inline code like \`marked.parse()\` switches to a monospace face, and block quotes get room to breathe:
 
-- **Live Preview** — See changes instantly as you type
-- **Mermaid Diagrams** — Render flowcharts, sequence diagrams, and more
-- **GitHub Alerts** — Styled callouts like \`> [!NOTE]\` and \`> [!WARNING]\`
-- **Dark/Light Mode** — Toggle between beautiful themes
-- **Line Numbers** — Track your position with ease
+> The best way to predict the future is to create it.
+> — *Peter Drucker*
 
----
+## Code
 
-## 📝 Typography
-
-Here's some \`inline code\` and a fenced code block:
+Fenced blocks get a language label and a copy button:
 
 \`\`\`javascript
 function fibonacci(n) {
@@ -39,12 +37,9 @@ function fibonacci(n) {
 console.log(fibonacci(10)); // 55
 \`\`\`
 
-> The best way to predict the future is to create it.
-> — *Peter Drucker*
+## Callouts
 
----
-
-## 📋 GitHub Alerts
+GitHub-flavored alerts render as styled admonitions:
 
 > [!NOTE]
 > Useful information that users should know, even when skimming.
@@ -61,9 +56,9 @@ console.log(fibonacci(10)); // 55
 > [!CAUTION]
 > Advises about risks or negative outcomes.
 
----
+## Diagrams
 
-## 🔷 Mermaid Diagram
+Mermaid blocks become live diagrams, themed to match the app:
 
 \`\`\`mermaid
 graph TD
@@ -72,31 +67,39 @@ graph TD
     B -->|No| D[Wait]
     D --> B
     C --> E{Valid?}
-    E -->|Yes| F[Done ✅]
-    E -->|No| G[Fix ❌]
+    E -->|Yes| F[Done]
+    E -->|No| G[Fix]
     G --> B
 \`\`\`
 
----
-
-## 📊 Tables
+## Tables
 
 | Feature | Status | Priority |
 |---------|--------|----------|
-| Markdown Parsing | ✅ Complete | High |
-| Mermaid Support | ✅ Complete | High |
-| GitHub Alerts | ✅ Complete | Medium |
-| Dark Mode | ✅ Complete | Low |
+| Markdown parsing | Complete | High |
+| Mermaid support | Complete | High |
+| GitHub alerts | Complete | Medium |
+| Dark mode | Complete | Low |
 
----
-
-## ✅ Task Lists
+## Task lists
 
 - [x] Create project structure
 - [x] Implement markdown rendering
 - [x] Add mermaid diagram support
 - [ ] Write documentation
 - [ ] Deploy to production
+
+---
+
+## Keyboard shortcuts
+
+| Shortcut | Action |
+|----------|--------|
+| \`Ctrl+O\` | Open a file |
+| \`Ctrl+S\` | Save (in place when a file is open) |
+| \`Ctrl+Shift+S\` | Save as... |
+| \`Ctrl+Z\` / \`Ctrl+Y\` | Undo / redo |
+| \`Ctrl+Shift+D\` | Toggle dark or light mode |
 `;
 
 // ──────────────────────────────────────
@@ -136,69 +139,91 @@ function showToast(message, duration = 2000) {
 }
 
 // ──────────────────────────────────────
-// Resizable divider
+// Resizable divider (orientation-aware:
+// row layout resizes widths, stacked layout resizes heights)
 // ──────────────────────────────────────
 let isDragging = false;
-let startX = 0;
-let startLeftWidth = 0;
+let dragVertical = false;
+let dragStart = 0;
+let startSize = 0;
+
+function isColumnLayout() {
+  const container = document.querySelector('.main-container');
+  return getComputedStyle(container).flexDirection === 'column';
+}
+
+function beginDrag(clientX, clientY) {
+  isDragging = true;
+  dragVertical = isColumnLayout();
+  const rect = $('editorPane').getBoundingClientRect();
+  dragStart = dragVertical ? clientY : clientX;
+  startSize = dragVertical ? rect.height : rect.width;
+  dividerEl.classList.add('active');
+}
+
+function moveDrag(clientX, clientY) {
+  const container = document.querySelector('.main-container');
+  const rect = container.getBoundingClientRect();
+  const total = dragVertical ? rect.height : rect.width;
+  const delta = (dragVertical ? clientY : clientX) - dragStart;
+  const percent = Math.min(Math.max(((startSize + delta) / total) * 100, 20), 80);
+  $('editorPane').style.flex = `0 0 ${percent}%`;
+  $('previewPane').style.flex = `0 0 ${100 - percent}%`;
+}
+
+function endDrag() {
+  if (!isDragging) return;
+  isDragging = false;
+  dividerEl.classList.remove('active');
+  document.body.style.cursor = '';
+  document.body.style.userSelect = '';
+}
 
 dividerEl.addEventListener('mousedown', (e) => {
-  isDragging = true;
-  startX = e.clientX;
-  const editorPane = $('editorPane');
-  startLeftWidth = editorPane.getBoundingClientRect().width;
-  dividerEl.classList.add('active');
-  document.body.style.cursor = 'col-resize';
+  beginDrag(e.clientX, e.clientY);
+  document.body.style.cursor = dragVertical ? 'row-resize' : 'col-resize';
   document.body.style.userSelect = 'none';
 });
 
 document.addEventListener('mousemove', (e) => {
   if (!isDragging) return;
-  const container = document.querySelector('.main-container');
-  const containerWidth = container.getBoundingClientRect().width;
-  const dx = e.clientX - startX;
-  const newLeftWidth = startLeftWidth + dx;
-  const percent = Math.min(Math.max((newLeftWidth / containerWidth) * 100, 20), 80);
-  $('editorPane').style.flex = `0 0 ${percent}%`;
-  $('previewPane').style.flex = `0 0 ${100 - percent}%`;
+  moveDrag(e.clientX, e.clientY);
 });
 
-document.addEventListener('mouseup', () => {
-  if (isDragging) {
-    isDragging = false;
-    dividerEl.classList.remove('active');
-    document.body.style.cursor = '';
-    document.body.style.userSelect = '';
-  }
-});
+document.addEventListener('mouseup', endDrag);
 
 dividerEl.addEventListener('touchstart', (e) => {
   const touch = e.touches[0];
-  isDragging = true;
-  startX = touch.clientX;
-  const editorPane = $('editorPane');
-  startLeftWidth = editorPane.getBoundingClientRect().width;
-  dividerEl.classList.add('active');
+  beginDrag(touch.clientX, touch.clientY);
 }, { passive: true });
 
 document.addEventListener('touchmove', (e) => {
   if (!isDragging) return;
   const touch = e.touches[0];
-  const container = document.querySelector('.main-container');
-  const containerWidth = container.getBoundingClientRect().width;
-  const dx = touch.clientX - startX;
-  const newLeftWidth = startLeftWidth + dx;
-  const percent = Math.min(Math.max((newLeftWidth / containerWidth) * 100, 20), 80);
-  $('editorPane').style.flex = `0 0 ${percent}%`;
-  $('previewPane').style.flex = `0 0 ${100 - percent}%`;
+  moveDrag(touch.clientX, touch.clientY);
 }, { passive: true });
 
-document.addEventListener('touchend', () => {
-  if (isDragging) {
-    isDragging = false;
-    dividerEl.classList.remove('active');
-  }
-}, { passive: true });
+document.addEventListener('touchend', endDrag, { passive: true });
+
+// ──────────────────────────────────────
+// Cursor-tracking border glow on panes (rAF-throttled)
+// ──────────────────────────────────────
+document.querySelectorAll('.pane').forEach((pane) => {
+  let glowFrame = null;
+  let px = 0;
+  let py = 0;
+  pane.addEventListener('pointermove', (e) => {
+    px = e.clientX;
+    py = e.clientY;
+    if (glowFrame) return;
+    glowFrame = requestAnimationFrame(() => {
+      glowFrame = null;
+      const rect = pane.getBoundingClientRect();
+      pane.style.setProperty('--mx', `${px - rect.left}px`);
+      pane.style.setProperty('--my', `${py - rect.top}px`);
+    });
+  });
+});
 
 // ──────────────────────────────────────
 // Theme toggle wrapper
@@ -222,7 +247,13 @@ document.addEventListener('keydown', (e) => {
 // 1. Theme
 initTheme(themeToggleEl, themeLabelEl, (theme) => {
   updateMermaidTheme(theme);
+  // Re-render so already-drawn diagrams pick up the new palette
+  // (mermaid bakes colors into each SVG at render time).
+  if (previewEl.querySelector('.mermaid, .render-error')) {
+    renderNow(getEditorContent());
+  }
 });
+themeToggleEl.addEventListener('click', toggleThemeWithFeedback);
 const savedTheme = loadSavedTheme();
 setTheme(savedTheme);
 updateMermaidTheme(savedTheme);
@@ -240,7 +271,11 @@ initEditor(
     redoBtn: $('redoBtn'),
   },
   {
-    onInput: () => scheduleRender(getEditorContent()),
+    onInput: () => {
+      scheduleRender(getEditorContent());
+      markDirty();
+      scheduleAutosave();
+    },
   }
 );
 
@@ -251,6 +286,20 @@ initPreview({
   previewLoading: previewLoadingEl,
 });
 
+// 3b. Scroll sync + outline
+initScrollSync({
+  editor: editorEl,
+  previewContent: $('previewContent'),
+  preview: previewEl,
+});
+initOutline({
+  panel: $('outlinePanel'),
+  list: $('outlineList'),
+  toggle: $('outlineToggle'),
+  previewContent: $('previewContent'),
+  preview: previewEl,
+});
+
 // 4. File I/O
 initFileIO(
   {
@@ -259,24 +308,40 @@ initFileIO(
     fileInput: fileInputEl,
     previewLoading: previewLoadingEl,
     renderStatus: renderStatusEl,
+    fileNameBadge: $('fileNameBadge'),
   },
   showToast
 );
 
-// 5. Set default content and render
-setEditorContent(defaultContent);
+// 5. Autosave (draft persistence)
+initPersistence($('autosaveStatus'), () => ({
+  content: getEditorContent(),
+  fileName: getFileName(),
+}));
+
+// 6. Content: restore the autosaved draft, else the welcome document
+const draft = loadDraft();
+if (draft) {
+  setEditorContent(draft.content);
+  restoreFileName(draft.fileName);
+  showToast('Restored your last draft');
+} else {
+  setEditorContent(defaultContent);
+}
 updateAll();
 scheduleRender(getEditorContent());
+flushDraft();
 
-// 6. Window resize handler for mermaid re-render
+// 7. Window resize handler for mermaid re-render
 let resizeTimeout;
 window.addEventListener('resize', () => {
   clearTimeout(resizeTimeout);
   resizeTimeout = setTimeout(() => {
     if (previewEl.querySelector('.mermaid')) {
+      // Cached SVGs bake in the old container width — drop them so the
+      // re-render actually reflows the diagrams.
+      invalidateMermaidCache();
       renderNow(getEditorContent());
     }
   }, 500);
 });
-
-console.log('💡 Ctrl+Shift+D: Toggle dark/light mode');

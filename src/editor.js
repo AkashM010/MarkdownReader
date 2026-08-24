@@ -40,6 +40,9 @@ export function initEditor(elements, callbacks) {
   editor.addEventListener('click', updateStats);
   editor.addEventListener('keyup', updateStats);
 
+  if (undoBtn) undoBtn.addEventListener('click', undo);
+  if (redoBtn) redoBtn.addEventListener('click', redo);
+
   // Tab inserts spaces
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Tab' && document.activeElement === editor) {
