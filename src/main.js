@@ -10,6 +10,7 @@ import { initPersistence, loadDraft, scheduleAutosave, flushDraft } from './pers
 import { initScrollSync } from './scrollsync.js';
 import { initOutline } from './outline.js';
 import { initLocate } from './locate.js';
+import { initFormat } from './format.js';
 
 // ──────────────────────────────────────
 // Default content
@@ -100,6 +101,12 @@ graph TD
 | \`Ctrl+S\` | Save (in place when a file is open) |
 | \`Ctrl+Shift+S\` | Save as... |
 | \`Ctrl+Z\` / \`Ctrl+Y\` | Undo / redo |
+| \`Ctrl+B\` / \`Ctrl+I\` | Bold / italic |
+| \`Ctrl+E\` | Inline code |
+| \`Ctrl+K\` | Insert link |
+| \`Ctrl+Shift+8\` / \`Ctrl+Shift+7\` | Bullet / numbered list |
+| \`Ctrl+Shift+L\` | Task list |
+| \`Ctrl+Shift+.\` | Quote |
 | \`Ctrl+Shift+D\` | Toggle dark or light mode |
 `;
 
@@ -331,6 +338,10 @@ initLocate({
   editorWrapper: document.querySelector('.editor-wrapper'),
   preview: previewEl,
   previewContent: $('previewContent'),
+});
+initFormat({
+  editor: editorEl,
+  toolbar: $('toolbar'),
 });
 
 // 4. File I/O

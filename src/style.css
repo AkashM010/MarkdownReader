@@ -1986,3 +1986,165 @@ body.resizing .preview-marker,
 body.resizing .editor-marker {
   transition: none;
 }
+
+/* ============================================================
+   Formatting toolbar
+   ============================================================ */
+.toolbar {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding: 5px 10px;
+  border-bottom: 1px solid var(--border-color);
+  background: var(--bg-pane-header);
+  flex-shrink: 0;
+  overflow-x: auto;
+  overflow-y: visible;
+  scrollbar-width: none;
+  position: relative;
+  z-index: 6;
+}
+
+.toolbar::-webkit-scrollbar {
+  display: none;
+}
+
+.tb-group {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  flex-shrink: 0;
+}
+
+.tb-sep {
+  width: 1px;
+  height: 18px;
+  background: var(--border-color);
+  margin: 0 6px;
+  flex-shrink: 0;
+}
+
+.tb-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  height: 28px;
+  min-width: 28px;
+  padding: 0 6px;
+  border-radius: var(--radius-sm);
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--text-secondary);
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: color 0.15s ease, background 0.15s ease, transform 0.1s ease;
+}
+
+.tb-btn:hover {
+  color: var(--accent);
+  background: var(--accent-soft);
+}
+
+.tb-btn:active {
+  transform: translateY(1px);
+}
+
+.tb-btn[aria-expanded="true"] {
+  color: var(--accent);
+  background: var(--accent-soft);
+  border-color: var(--border-color);
+}
+
+.tb-btn:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+
+.tb-btn svg {
+  width: 15px;
+  height: 15px;
+}
+
+.tb-btn .tb-chevron {
+  width: 10px;
+  height: 10px;
+  opacity: 0.7;
+}
+
+/* Dropdown menus */
+.tb-dropdown {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.tb-menu {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  min-width: 170px;
+  padding: 6px;
+  border-radius: var(--radius-md);
+  background: var(--bg-pane);
+  border: 1px solid var(--border-color);
+  box-shadow: var(--shadow-lg), inset 0 1px 0 var(--edge-highlight);
+  display: none;
+  z-index: 30;
+}
+
+.tb-menu.open {
+  display: block;
+  animation: menu-in 0.18s var(--ease-out);
+}
+
+@keyframes menu-in {
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: none; }
+}
+
+.tb-menu-item {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  width: 100%;
+  padding: 7px 10px;
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--text-primary);
+  font-family: var(--font-ui);
+  font-size: 13px;
+  text-align: left;
+  cursor: pointer;
+  transition: color 0.12s ease, background 0.12s ease;
+}
+
+.tb-menu-item:hover,
+.tb-menu-item:focus-visible {
+  background: var(--accent-soft);
+  color: var(--accent);
+  outline: none;
+}
+
+.tb-menu-item.tb-h1 { font-size: 17px; font-weight: 700; }
+.tb-menu-item.tb-h2 { font-size: 15px; font-weight: 600; }
+.tb-menu-item.tb-h3 { font-size: 13.5px; font-weight: 600; }
+
+.tb-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--c);
+  box-shadow: 0 0 6px var(--c);
+  flex-shrink: 0;
+}
+
+/* The toolbar must not clip its own dropdowns when it scrolls horizontally */
+.toolbar:has(.tb-menu.open) {
+  overflow: visible;
+}
+
+@media (max-width: 768px) {
+  .toolbar { padding: 4px 8px; }
+  .tb-sep { margin: 0 3px; }
+}
