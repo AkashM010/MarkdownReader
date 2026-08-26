@@ -110,6 +110,8 @@ function rebuild() {
         top: Math.max(h.el.offsetTop - 16, 0),
         behavior: reduce ? 'auto' : 'smooth',
       });
+      // Also pinpoint the heading's source lines in the editor.
+      document.dispatchEvent(new CustomEvent('md-locate', { detail: { el: h.el } }));
     });
     list.appendChild(btn);
   }

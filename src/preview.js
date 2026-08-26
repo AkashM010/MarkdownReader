@@ -203,9 +203,12 @@ function renderTokens(markdown, tokens) {
     }
     if (tok.type === 'space') continue;
 
+    const body = tok.raw.replace(/\n+$/, '');
+    const endLine = startLine + countLines(body, 0, body.length);
     tpl.innerHTML = marked.parser([tok]);
     for (const child of tpl.content.children) {
       child.dataset.line = startLine;
+      child.dataset.lineEnd = endLine;
     }
     frag.append(...tpl.content.childNodes);
   }

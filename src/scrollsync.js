@@ -85,6 +85,25 @@ export function initScrollSync(elements) {
   });
 }
 
+/** Programmatic editor scroll that won't be mistaken for user input. */
+export function scrollEditorTo(top) {
+  const max = Math.max(editor.scrollHeight - editor.clientHeight, 0);
+  const target = Math.min(Math.max(top, 0), max);
+  if (Math.abs(editor.scrollTop - target) < 2) return;
+  expectedEditorScrollTop = target;
+  editor.scrollTop = target;
+}
+
+/** Programmatic preview scroll; treated as user intent for the re-sync grace. */
+export function scrollPreviewTo(top) {
+  const max = Math.max(previewContent.scrollHeight - previewContent.clientHeight, 0);
+  const target = Math.min(Math.max(top, 0), max);
+  lastManualPreviewScroll = Date.now();
+  if (Math.abs(previewContent.scrollTop - target) < 2) return;
+  expectedPreviewScrollTop = target;
+  previewContent.scrollTop = target;
+}
+
 function scheduleRebuild() {
   if (rebuildFrame) return;
   rebuildFrame = requestAnimationFrame(() => {

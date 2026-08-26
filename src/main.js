@@ -9,6 +9,7 @@ import { initFileIO, markDirty, getFileName, restoreFileName } from './fileIO.js
 import { initPersistence, loadDraft, scheduleAutosave, flushDraft } from './persistence.js';
 import { initScrollSync } from './scrollsync.js';
 import { initOutline } from './outline.js';
+import { initLocate } from './locate.js';
 
 // ──────────────────────────────────────
 // Default content
@@ -316,6 +317,12 @@ initOutline({
   toggle: $('outlineToggle'),
   previewContent: $('previewContent'),
   preview: previewEl,
+});
+initLocate({
+  editor: editorEl,
+  editorWrapper: document.querySelector('.editor-wrapper'),
+  preview: previewEl,
+  previewContent: $('previewContent'),
 });
 
 // 4. File I/O

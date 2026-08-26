@@ -1902,3 +1902,81 @@ body {
 .divider.active::after {
   background: linear-gradient(180deg, var(--accent-strong), var(--accent-2));
 }
+
+/* ============================================================
+   Locate — current-block markers in both panes
+   ============================================================ */
+
+/* Layering: gutter (static) < editor band < textarea */
+#editor {
+  position: relative;
+  z-index: 2;
+}
+
+.editor-marker {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  z-index: 1;
+  height: 0;
+  opacity: 0;
+  background: var(--accent-soft);
+  box-shadow: inset 3px 0 0 var(--accent);
+  pointer-events: none;
+  transition: height 0.2s var(--ease-out), opacity 0.2s ease;
+  will-change: transform;
+}
+
+/* Preview content sits above its marker */
+#preview {
+  position: relative;
+  z-index: 1;
+}
+
+.preview-marker {
+  position: absolute;
+  z-index: 0;
+  top: 0;
+  left: 0;
+  width: 0;
+  height: 0;
+  opacity: 0;
+  border-radius: var(--radius-md);
+  background: var(--accent-soft);
+  box-shadow: inset 3px 0 0 var(--accent);
+  pointer-events: none;
+  transition: top 0.3s var(--ease-out), height 0.3s var(--ease-out),
+              left 0.3s var(--ease-out), width 0.3s var(--ease-out),
+              opacity 0.3s ease;
+}
+
+.editor-marker.flash,
+.preview-marker.flash {
+  animation: marker-flash 0.9s var(--ease-out) 1;
+}
+
+@keyframes marker-flash {
+  0% {
+    background: var(--accent-ring);
+    box-shadow: inset 3px 0 0 var(--accent), 0 0 0 4px var(--accent-soft);
+  }
+  100% {
+    background: var(--accent-soft);
+    box-shadow: inset 3px 0 0 var(--accent);
+  }
+}
+
+/* Blocks are click targets: a quiet hint on hover */
+#preview > [data-line]:hover {
+  outline: 1px dashed var(--accent-ring);
+  outline-offset: 8px;
+  border-radius: var(--radius-sm);
+}
+
+#preview > .code-block[data-line]:hover,
+#preview > .mermaid[data-line]:hover,
+#preview > table[data-line]:hover,
+#preview > .markdown-alert[data-line]:hover {
+  outline-offset: 4px;
+}
