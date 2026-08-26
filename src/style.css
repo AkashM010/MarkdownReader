@@ -1,5 +1,5 @@
 /* ============================================================
-   Markdown Reader — tactile, layered, quietly 3D.
+   Read Your MD — tactile, layered, quietly 3D.
    UI chrome: Space Grotesk · Prose: Lora · Code: JetBrains Mono
    ============================================================ */
 
@@ -1550,7 +1550,7 @@ body {
   .line-numbers { display: none; }
   .header { padding: 0 12px; }
   .logo-name { font-size: 15px; }
-  .logo-name-alt { display: none; }
+  .logo-name-alt { display: inline; }
   .action-label { display: none; }
   .action-btn { padding: 7px 9px; }
   .status-badge { display: none; }

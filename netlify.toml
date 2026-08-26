@@ -1,4 +1,4 @@
-# Netlify build settings for Markdown Reader (static Vite site)
+# Netlify build settings for Read Your MD (static Vite site)
 [build]
   command = "npm run build"
   publish = "dist"
