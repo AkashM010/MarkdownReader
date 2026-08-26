@@ -49,6 +49,16 @@ export function initLocate(elements) {
   document.addEventListener('selectionchange', () => {
     if (document.activeElement === editor) scheduleUpdate(true);
   });
+  // A click in the editor is answered by the preview: its marker flashes on
+  // the matching block and the preview pane sweeps.
+  editor.addEventListener('click', () => {
+    scheduleUpdate(true);
+    requestAnimationFrame(() => {
+      if (!current) return;
+      flash(previewMarker);
+      ignitePane(previewContent.closest('.pane'));
+    });
+  });
   editor.addEventListener('scroll', scheduleEditorMarker, { passive: true });
 
   // Preview interactions
@@ -65,7 +75,12 @@ export function initLocate(elements) {
     scheduleUpdate(false);
   });
   if (typeof ResizeObserver === 'function') {
-    new ResizeObserver(() => positionPreviewMarker()).observe(preview);
+    const ro = new ResizeObserver(() => positionPreviewMarker());
+    // Observe the scroll container too: on wide panes #preview is capped at
+    // its max-width and only shifts sideways when the divider moves, which
+    // never changes its own size.
+    ro.observe(preview);
+    ro.observe(previewContent);
   }
 }
 
@@ -228,11 +243,20 @@ export function locateBlock(el) {
 
   // Hand keyboard focus to the editor on non-touch devices (a touch device
   // would pop the on-screen keyboard).
-  if (window.matchMedia('(pointer: fine)').matches) editor.focus();
+  if (window.matchMedia('(pointer: fine)').matches && document.activeElement !== editor) {
+    editor.focus();
+  }
 
   current = block;
   positionEditorMarker();
   positionPreviewMarker();
   flash(editorMarker);
   flash(previewMarker);
+
+  // The pane that responded lights up: a preview tap sweeps the editor.
+  ignitePane(editorWrapper.closest('.pane'));
+}
+
+function ignitePane(pane) {
+  if (pane) document.dispatchEvent(new CustomEvent('md-ignite', { detail: { pane } }));
 }

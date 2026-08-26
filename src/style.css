@@ -1980,3 +1980,9 @@ body {
 #preview > .markdown-alert[data-line]:hover {
   outline-offset: 4px;
 }
+
+/* While the divider is being dragged, markers must track layout instantly */
+body.resizing .preview-marker,
+body.resizing .editor-marker {
+  transition: none;
+}

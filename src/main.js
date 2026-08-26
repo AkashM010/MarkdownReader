@@ -160,6 +160,8 @@ function beginDrag(clientX, clientY) {
   dragStart = dragVertical ? clientY : clientX;
   startSize = dragVertical ? rect.height : rect.width;
   dividerEl.classList.add('active');
+  // Lets overlays (locate markers) snap instead of easing while resizing.
+  document.body.classList.add('resizing');
 }
 
 function moveDrag(clientX, clientY) {
@@ -176,6 +178,7 @@ function endDrag() {
   if (!isDragging) return;
   isDragging = false;
   dividerEl.classList.remove('active');
+  document.body.classList.remove('resizing');
   document.body.style.cursor = '';
   document.body.style.userSelect = '';
 }
@@ -227,8 +230,10 @@ document.querySelectorAll('.pane').forEach((pane) => {
 });
 
 // ──────────────────────────────────────
-// Edge-light sweep: runs once around a pane on boot and whenever
-// it becomes the active pane (CSS animates .pane.ignite::before).
+// Edge-light sweep: runs once around each pane on boot, and afterwards
+// marks the pane that RESPONDED to an action in the other pane
+// (locate.js requests it via the md-ignite event). The active pane is
+// already shown by the focus ring, so plain focus changes don't sweep.
 // ──────────────────────────────────────
 function ignite(pane) {
   pane.classList.remove('ignite');
@@ -236,8 +241,11 @@ function ignite(pane) {
   pane.classList.add('ignite');
 }
 
+document.addEventListener('md-ignite', (e) => {
+  if (e.detail?.pane) ignite(e.detail.pane);
+});
+
 document.querySelectorAll('.pane').forEach((pane, i) => {
-  pane.addEventListener('focusin', () => ignite(pane));
   pane.addEventListener('animationend', (e) => {
     if (e.animationName === 'edge-sweep') pane.classList.remove('ignite');
   });
