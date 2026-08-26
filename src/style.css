@@ -36,51 +36,62 @@ html {
 [data-theme="light"] {
   color-scheme: light;
 
-  --bg-body: #f1efe9;
-  --bg-sheen: radial-gradient(1100px 700px at 75% -10%, rgba(13, 148, 136, 0.07), transparent 60%),
-              radial-gradient(900px 600px at -10% 110%, rgba(59, 130, 246, 0.06), transparent 60%);
-  --bg-header: rgba(247, 246, 242, 0.94);
-  --bg-pane: #fcfbf9;
-  --bg-pane-header: #f7f5f0;
-  --bg-editor: #fcfbf9;
-  --bg-status: rgba(247, 246, 242, 0.94);
-  --bg-code: rgba(13, 148, 136, 0.08);
+  --bg-body: #ebe7de;
+  --bg-sheen: radial-gradient(1200px 760px at 78% -12%, rgba(13, 148, 136, 0.16), transparent 60%),
+              radial-gradient(900px 640px at -8% 108%, rgba(37, 99, 235, 0.1), transparent 60%),
+              radial-gradient(700px 500px at 50% 120%, rgba(245, 158, 11, 0.1), transparent 60%);
+  --bg-header: rgba(250, 249, 246, 0.94);
+  --bg-header-gradient: linear-gradient(180deg, rgba(255, 255, 255, 0.6), rgba(255, 255, 255, 0));
+  --bg-pane: #ffffff;
+  --bg-pane-gradient: linear-gradient(180deg, #ffffff 0%, #fcfbf8 100%);
+  --bg-pane-header: #f6f3ed;
+  --bg-pane-header-gradient: linear-gradient(180deg, #faf8f4, #f4f1ea);
+  --bg-editor: #fbfaf7;
+  --bg-gutter: rgba(38, 35, 26, 0.035);
+  --bg-status: rgba(250, 249, 246, 0.94);
+  --bg-code: rgba(13, 148, 136, 0.09);
   --bg-code-block: #10161f;
   --bg-code-bar: #171f2b;
-  --bg-mermaid: #fcfbf9;
+  --bg-mermaid: #ffffff;
 
-  --text-primary: #262b36;
-  --text-secondary: #5c6470;
+  --text-primary: #23293a;
+  --text-secondary: #5b6371;
   --text-muted: #646d79;
   --text-code-block: #dfe6ef;
   --text-code-muted: #7d8b9f;
 
-  --border-color: #e2ddd2;
-  --border-strong: #cfc8b9;
+  --border-color: #dfd8ca;
+  --border-strong: #c9c0ae;
+  --edge-highlight: rgba(255, 255, 255, 1);
 
   --accent: #0f766e;
   --accent-strong: #0d9488;
+  --accent-2: #2563eb;
+  --accent-gradient: linear-gradient(135deg, #0d9488 0%, #2563eb 100%);
+  --accent-ink: #ffffff;
   --accent-contrast: #0a4f4a;
   --chip-text: #0a5a52;
-  --accent-soft: rgba(13, 148, 136, 0.09);
-  --glow-color: rgba(13, 148, 136, 0.35);
+  --accent-soft: rgba(13, 148, 136, 0.1);
+  --accent-ring: rgba(13, 148, 136, 0.3);
+  --glow-color: rgba(13, 148, 136, 0.4);
   --selection: rgba(13, 148, 136, 0.2);
   --caret: #0d9488;
 
-  --blob-opacity: 0.28;
+  --blob-opacity: 0.4;
   --grain-opacity: 0.05;
 
-  --shadow-pane: 0 1px 2px rgba(38, 35, 26, 0.05),
-                 0 8px 24px -8px rgba(38, 35, 26, 0.12),
-                 0 24px 48px -20px rgba(38, 35, 26, 0.14);
+  --shadow-pane: inset 0 1px 0 var(--edge-highlight),
+                 0 2px 4px rgba(38, 35, 26, 0.04),
+                 0 16px 36px -14px rgba(38, 35, 26, 0.18),
+                 0 44px 90px -40px rgba(38, 35, 26, 0.26);
   --shadow-sm: 0 1px 2px rgba(38, 35, 26, 0.06);
-  --shadow-md: 0 4px 12px -2px rgba(38, 35, 26, 0.1);
-  --shadow-lg: 0 12px 32px -8px rgba(38, 35, 26, 0.18);
+  --shadow-md: 0 6px 16px -4px rgba(38, 35, 26, 0.12);
+  --shadow-lg: 0 16px 40px -10px rgba(38, 35, 26, 0.22);
 
-  --btn-face: linear-gradient(180deg, #ffffff, #f2efe8);
-  --btn-face-hover: linear-gradient(180deg, #ffffff, #eef5f3);
-  --btn-edge: rgba(38, 35, 26, 0.16);
-  --btn-highlight: rgba(255, 255, 255, 0.9);
+  --btn-face: linear-gradient(180deg, #ffffff, #f3f0e9);
+  --btn-face-hover: linear-gradient(180deg, #ffffff, #eef6f4);
+  --btn-edge: rgba(38, 35, 26, 0.18);
+  --btn-highlight: rgba(255, 255, 255, 1);
 
   --scrollbar-thumb: #cdc7ba;
 
@@ -101,63 +112,75 @@ html {
   --alert-caution-border: #dc2626;
   --alert-caution-text: #b91c1c;
 
-  --h-border: #e6e1d6;
-  --table-stripe: #f7f5f0;
-  --table-border: #e6e1d6;
-  --table-head: #f2efe8;
+  --h-border: #e4ded1;
+  --table-stripe: #f8f6f1;
+  --table-border: #e4ded1;
+  --table-head: #f3f0e9;
 }
 
 /* ===== Dark theme — deep graphite ===== */
 [data-theme="dark"] {
   color-scheme: dark;
 
-  --bg-body: #0a0e16;
-  --bg-sheen: radial-gradient(1100px 700px at 75% -10%, rgba(45, 212, 191, 0.06), transparent 60%),
-              radial-gradient(900px 600px at -10% 110%, rgba(59, 130, 246, 0.05), transparent 60%);
-  --bg-header: rgba(12, 17, 27, 0.92);
-  --bg-pane: #101623;
-  --bg-pane-header: #0d1320;
-  --bg-editor: #0d1320;
-  --bg-status: rgba(12, 17, 27, 0.92);
-  --bg-code: rgba(94, 234, 212, 0.09);
-  --bg-code-block: #0a0f18;
-  --bg-code-bar: #0e1522;
-  --bg-mermaid: #0d1320;
+  --bg-body: #0c1120;
+  --bg-sheen: radial-gradient(1200px 760px at 78% -12%, rgba(45, 212, 191, 0.16), transparent 60%),
+              radial-gradient(900px 640px at -8% 108%, rgba(99, 102, 241, 0.16), transparent 60%),
+              radial-gradient(700px 500px at 50% 120%, rgba(59, 130, 246, 0.1), transparent 60%),
+              linear-gradient(180deg, rgba(255, 255, 255, 0.035), transparent 28%);
+  --bg-header: rgba(18, 25, 41, 0.92);
+  --bg-header-gradient: linear-gradient(180deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0));
+  --bg-pane: #151d30;
+  --bg-pane-gradient: linear-gradient(180deg, #192339 0%, #141c2e 100%);
+  --bg-pane-header: #1b2539;
+  --bg-pane-header-gradient: linear-gradient(180deg, #1f2a41, #192338);
+  --bg-editor: #111828;
+  --bg-gutter: rgba(3, 6, 14, 0.22);
+  --bg-status: rgba(18, 25, 41, 0.92);
+  --bg-code: rgba(94, 234, 212, 0.1);
+  --bg-code-block: #0b101b;
+  --bg-code-bar: #111828;
+  --bg-mermaid: #111828;
 
-  --text-primary: #e8edf4;
-  --text-secondary: #9aa6b5;
-  --text-muted: #7d8b9f;
-  --text-code-block: #dfe6ef;
-  --text-code-muted: #7d8b9f;
+  --text-primary: #eef2f8;
+  --text-secondary: #a3aec0;
+  --text-muted: #8090a6;
+  --text-code-block: #e2e8f0;
+  --text-code-muted: #8090a6;
 
-  --border-color: rgba(148, 163, 184, 0.14);
-  --border-strong: rgba(148, 163, 184, 0.28);
+  --border-color: rgba(163, 177, 199, 0.16);
+  --border-strong: rgba(163, 177, 199, 0.32);
+  --edge-highlight: rgba(255, 255, 255, 0.08);
 
   --accent: #2dd4bf;
   --accent-strong: #5eead4;
+  --accent-2: #60a5fa;
+  --accent-gradient: linear-gradient(135deg, #2dd4bf 0%, #60a5fa 100%);
+  --accent-ink: #06201c;
   --accent-contrast: #99f6e4;
   --chip-text: #2dd4bf;
-  --accent-soft: rgba(45, 212, 191, 0.1);
-  --glow-color: rgba(45, 212, 191, 0.4);
-  --selection: rgba(45, 212, 191, 0.25);
+  --accent-soft: rgba(45, 212, 191, 0.12);
+  --accent-ring: rgba(45, 212, 191, 0.35);
+  --glow-color: rgba(45, 212, 191, 0.5);
+  --selection: rgba(45, 212, 191, 0.28);
   --caret: #5eead4;
 
-  --blob-opacity: 0.17;
-  --grain-opacity: 0.06;
+  --blob-opacity: 0.32;
+  --grain-opacity: 0.05;
 
-  --shadow-pane: 0 1px 0 rgba(255, 255, 255, 0.03) inset,
-                 0 8px 24px -8px rgba(2, 4, 10, 0.6),
-                 0 24px 56px -20px rgba(2, 4, 10, 0.8);
-  --shadow-sm: 0 1px 2px rgba(2, 4, 10, 0.4);
-  --shadow-md: 0 4px 14px -2px rgba(2, 4, 10, 0.5);
-  --shadow-lg: 0 16px 40px -8px rgba(2, 4, 10, 0.7);
+  --shadow-pane: inset 0 1px 0 var(--edge-highlight),
+                 0 12px 30px -12px rgba(3, 6, 14, 0.7),
+                 0 44px 90px -40px rgba(3, 6, 14, 0.9),
+                 0 0 80px -30px rgba(45, 212, 191, 0.18);
+  --shadow-sm: 0 1px 2px rgba(3, 6, 14, 0.45);
+  --shadow-md: 0 6px 18px -4px rgba(3, 6, 14, 0.55);
+  --shadow-lg: 0 20px 50px -12px rgba(3, 6, 14, 0.75);
 
-  --btn-face: linear-gradient(180deg, #1a2334, #131b2a);
-  --btn-face-hover: linear-gradient(180deg, #1e2a3e, #16202f);
-  --btn-edge: rgba(2, 4, 10, 0.8);
-  --btn-highlight: rgba(255, 255, 255, 0.08);
+  --btn-face: linear-gradient(180deg, #243049, #1a2438);
+  --btn-face-hover: linear-gradient(180deg, #2a3854, #1f2b42);
+  --btn-edge: rgba(3, 6, 14, 0.9);
+  --btn-highlight: rgba(255, 255, 255, 0.1);
 
-  --scrollbar-thumb: #2b3648;
+  --scrollbar-thumb: #34405a;
 
   --alert-note-bg: rgba(96, 165, 250, 0.08);
   --alert-note-border: #3b82f6;
@@ -175,10 +198,10 @@ html {
   --alert-caution-border: #dc2626;
   --alert-caution-text: #fca5a5;
 
-  --h-border: rgba(148, 163, 184, 0.16);
-  --table-stripe: rgba(148, 163, 184, 0.04);
-  --table-border: rgba(148, 163, 184, 0.14);
-  --table-head: #131b2a;
+  --h-border: rgba(163, 177, 199, 0.18);
+  --table-stripe: rgba(163, 177, 199, 0.045);
+  --table-border: rgba(163, 177, 199, 0.16);
+  --table-head: #1b2539;
 }
 
 /* ===== Base ===== */
@@ -1562,4 +1585,320 @@ body {
   .ambient-blob { animation: none; }
   .logo-mark { animation: none; }
   html { scroll-behavior: auto; }
+}
+
+/* ============================================================
+   Premium finish — tonal depth, glass edges, accent moments
+   ============================================================ */
+
+/* Pane surfaces: soft vertical gradient + active-pane ring */
+.pane {
+  background: var(--bg-pane-gradient);
+  background-color: var(--bg-pane);
+}
+
+.pane:focus-within {
+  border-color: var(--accent-ring);
+  box-shadow: var(--shadow-pane), 0 0 0 3px var(--accent-soft);
+}
+
+/* Glass top edge lives on the header band (it covers the pane's top) */
+.pane-header {
+  background: var(--bg-pane-header-gradient);
+  box-shadow: inset 0 1px 0 var(--edge-highlight);
+}
+
+.header {
+  background: var(--bg-header-gradient), var(--bg-header);
+}
+
+/* Editor gutter recess */
+.line-numbers {
+  background: var(--bg-gutter);
+}
+
+/* Richer ambient light now that the panes are lifted off the background */
+.ambient-a {
+  width: 680px;
+  height: 680px;
+}
+
+.ambient-b {
+  width: 760px;
+  height: 760px;
+  background: radial-gradient(circle, #6366f1 0%, rgba(99, 102, 241, 0.4) 35%, transparent 70%);
+}
+
+/* Primary action — the one accent-colored button */
+.action-btn.primary {
+  background: var(--accent-gradient);
+  color: var(--accent-ink);
+  border-color: transparent;
+  border-bottom-color: rgba(3, 6, 14, 0.35);
+  font-weight: 600;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.35),
+              0 2px 0 rgba(3, 6, 14, 0.35),
+              0 10px 20px -8px var(--glow-color);
+}
+
+.action-btn.primary:hover {
+  color: var(--accent-ink);
+  border-color: transparent;
+  border-bottom-color: rgba(3, 6, 14, 0.35);
+  background: var(--accent-gradient);
+  filter: brightness(1.07);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.4),
+              0 3px 0 rgba(3, 6, 14, 0.35),
+              0 14px 26px -8px var(--glow-color),
+              0 0 0 3px var(--accent-soft);
+}
+
+.action-btn.primary:active {
+  box-shadow: inset 0 1px 0 transparent,
+              0 0 0 rgba(3, 6, 14, 0.35),
+              0 4px 10px -6px var(--glow-color);
+}
+
+/* Logo mark picks up the accent gradient and a soft halo */
+.logo-mark {
+  background: var(--accent-gradient);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.35),
+              0 2px 6px rgba(20, 184, 166, 0.35),
+              0 10px 24px -8px var(--glow-color);
+}
+
+/* Live status dot glows when rendered */
+.status-chip[data-state="done"]::before {
+  box-shadow: 0 0 8px var(--glow-color);
+}
+
+/* Outline: accent bar on the active section */
+.outline-item.active {
+  box-shadow: inset 2px 0 0 var(--accent);
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
+}
+
+/* Scrollbar thumb warms to the accent on hover */
+::-webkit-scrollbar-thumb:hover {
+  background: var(--accent);
+  background-clip: content-box;
+}
+
+/* ---- Preview: editorial details ---- */
+
+/* Title rule fades from accent to nothing */
+#preview h1 {
+  border-bottom: 2px solid transparent;
+  border-image: linear-gradient(90deg, var(--accent) 0%, var(--accent-2) 45%, transparent 100%) 1;
+}
+
+/* Blockquote with a set quotation mark */
+#preview blockquote {
+  position: relative;
+  padding-left: 54px;
+}
+
+#preview blockquote::before {
+  content: '\201C';
+  position: absolute;
+  left: 16px;
+  top: 4px;
+  font-family: var(--font-prose);
+  font-size: 50px;
+  line-height: 1;
+  color: var(--accent);
+  opacity: 0.4;
+}
+
+/* Table header gets a firmer baseline */
+#preview th {
+  box-shadow: inset 0 -1px 0 var(--border-strong);
+}
+
+/* Cards inside the preview share the glass edge */
+#preview .code-block,
+#preview .mermaid,
+#preview table,
+.markdown-alert {
+  box-shadow: var(--shadow-md), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+
+/* ============================================================
+   Futuristic layer — light sweeps, beams, grid, chips
+   ============================================================ */
+
+/* Faint dot grid on the ambient layer (static, one raster) */
+.ambient::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(circle, var(--grid-dot) 1px, transparent 1.4px);
+  background-size: 28px 28px;
+  -webkit-mask-image: radial-gradient(ellipse 70% 70% at 50% 45%, #000 20%, transparent 80%);
+  mask-image: radial-gradient(ellipse 70% 70% at 50% 45%, #000 20%, transparent 80%);
+}
+
+:root,
+[data-theme="light"] { --grid-dot: rgba(38, 35, 26, 0.14); }
+[data-theme="dark"]  { --grid-dot: rgba(163, 190, 224, 0.13); }
+
+/* Header: glowing hairline */
+.header {
+  position: relative;
+}
+
+.header::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -1px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent 0%, var(--accent-ring) 25%, var(--accent-2) 50%, var(--accent-ring) 75%, transparent 100%);
+  opacity: 0.7;
+  pointer-events: none;
+}
+
+/* Logo name shimmers on hover */
+.logo-name {
+  background: linear-gradient(100deg,
+              var(--text-primary) 0%, var(--text-primary) 40%,
+              var(--accent-strong) 50%,
+              var(--text-primary) 60%, var(--text-primary) 100%);
+  background-size: 250% 100%;
+  background-position: 100% 0;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: var(--text-primary);
+}
+
+.logo-name-alt {
+  -webkit-text-fill-color: var(--text-secondary);
+}
+
+.header-logo:hover .logo-name {
+  animation: logo-shimmer 1.1s var(--ease-out) 1;
+}
+
+@keyframes logo-shimmer {
+  from { background-position: 100% 0; }
+  to { background-position: 0% 0; }
+}
+
+/* Word-count chip with a gradient border */
+.status-badge {
+  border: 1px solid transparent;
+  background: linear-gradient(var(--bg-pane-header), var(--bg-pane-header)) padding-box,
+              var(--accent-gradient) border-box;
+  box-shadow: 0 0 14px -6px var(--glow-color);
+}
+
+/* Stronger cursor-tracking edge light */
+.pane::after {
+  background: radial-gradient(360px circle at var(--mx, 50%) var(--my, 50%),
+              var(--glow-color), transparent 70%);
+}
+
+/* Edge-light sweep: a highlight travels once around the pane border
+   on boot and whenever the pane becomes active (class set by main.js). */
+@property --sweep {
+  syntax: '<angle>';
+  inherits: false;
+  initial-value: 0deg;
+}
+
+.pane::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1.5px;
+  background: conic-gradient(from var(--sweep),
+              transparent 0deg, transparent 290deg,
+              var(--accent-2) 325deg, var(--accent-strong) 348deg,
+              transparent 360deg);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  mask-composite: exclude;
+  opacity: 0;
+  pointer-events: none;
+  z-index: 3;
+}
+
+.pane.ignite::before {
+  animation: edge-sweep 1.4s var(--ease-out) forwards;
+}
+
+@keyframes edge-sweep {
+  0%   { --sweep: 0deg;   opacity: 0; }
+  12%  { opacity: 1; }
+  80%  { opacity: 1; }
+  100% { --sweep: 360deg; opacity: 0; }
+}
+
+/* Render beam under a pane header while its status chip is busy */
+.pane-header {
+  position: relative;
+}
+
+.pane-header::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -1px;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--accent), var(--accent-2), transparent);
+  background-size: 40% 100%;
+  background-repeat: no-repeat;
+  background-position: -100% 0;
+  opacity: 0;
+  transition: opacity 0.25s ease;
+  pointer-events: none;
+}
+
+.pane-header:has(.status-chip[data-state="busy"])::after {
+  opacity: 1;
+  animation: render-beam 0.9s linear infinite;
+}
+
+@keyframes render-beam {
+  from { background-position: -100% 0; }
+  to { background-position: 200% 0; }
+}
+
+/* Code cards: accent hairline across the top of the language bar */
+.code-block-bar {
+  position: relative;
+}
+
+.code-block-bar::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  height: 1px;
+  background: linear-gradient(90deg, var(--accent) 0%, var(--accent-2) 50%, transparent 100%);
+  opacity: 0.7;
+}
+
+/* Outline entries slide in with a stagger when the panel opens */
+.outline.open .outline-item {
+  animation: outline-in 0.4s var(--ease-out) both;
+  animation-delay: calc(var(--i, 0) * 28ms);
+}
+
+@keyframes outline-in {
+  from { opacity: 0; transform: translateX(10px); }
+  to { opacity: 1; transform: none; }
+}
+
+/* Divider grip: gradient pill */
+.divider:hover::after,
+.divider.active::after {
+  background: linear-gradient(180deg, var(--accent-strong), var(--accent-2));
 }

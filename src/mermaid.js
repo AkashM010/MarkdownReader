@@ -16,8 +16,8 @@ export function updateMermaidTheme(theme) {
         primaryBorderColor: '#2dd4bf',
         primaryTextColor: '#e8edf4',
         lineColor: '#5f6b7c',
-        secondaryColor: '#131b2a',
-        tertiaryColor: '#0d1320',
+        secondaryColor: '#1b2539',
+        tertiaryColor: '#111828',
         fontFamily: FONT_STACK,
       },
     });
@@ -31,8 +31,8 @@ export function updateMermaidTheme(theme) {
         primaryBorderColor: '#0d9488',
         primaryTextColor: '#262b36',
         lineColor: '#99a0ab',
-        secondaryColor: '#f2efe8',
-        tertiaryColor: '#fcfbf9',
+        secondaryColor: '#f3f0e9',
+        tertiaryColor: '#ffffff',
         fontFamily: FONT_STACK,
       },
     });

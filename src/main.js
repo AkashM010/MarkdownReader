@@ -226,6 +226,24 @@ document.querySelectorAll('.pane').forEach((pane) => {
 });
 
 // ──────────────────────────────────────
+// Edge-light sweep: runs once around a pane on boot and whenever
+// it becomes the active pane (CSS animates .pane.ignite::before).
+// ──────────────────────────────────────
+function ignite(pane) {
+  pane.classList.remove('ignite');
+  void pane.offsetWidth; // restart the animation if it was mid-flight
+  pane.classList.add('ignite');
+}
+
+document.querySelectorAll('.pane').forEach((pane, i) => {
+  pane.addEventListener('focusin', () => ignite(pane));
+  pane.addEventListener('animationend', (e) => {
+    if (e.animationName === 'edge-sweep') pane.classList.remove('ignite');
+  });
+  setTimeout(() => ignite(pane), 450 + i * 180);
+});
+
+// ──────────────────────────────────────
 // Theme toggle wrapper
 // ──────────────────────────────────────
 function toggleThemeWithFeedback() {

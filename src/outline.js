@@ -103,6 +103,7 @@ function rebuild() {
     btn.className = `outline-item outline-l${h.level}`;
     btn.textContent = h.text || '(untitled)';
     btn.title = h.text || '(untitled)';
+    btn.style.setProperty('--i', String(list.children.length));
     btn.addEventListener('click', () => {
       const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
       previewContent.scrollTo({
