@@ -12,12 +12,14 @@ let lineNum = null;
 let colNum = null;
 let charCount = null;
 let wordCountHeader = null;
+let readTime = null;
 let onInput = null;
 
 // ──────────────────────────────────────
 // Undo/Redo history stack
 // ──────────────────────────────────────
 const MAX_HISTORY = 150;
+const MAX_HISTORY_BYTES = 24 * 1024 * 1024;
 let history = [];
 let historyIndex = -1;
 let isUndoRedoing = false;
@@ -31,6 +33,7 @@ export function initEditor(elements, callbacks) {
   colNum = elements.colNum;
   charCount = elements.charCount;
   wordCountHeader = elements.wordCountHeader;
+  readTime = elements.readTime || null;
   onInput = callbacks.onInput;
   undoBtn = elements.undoBtn || null;
   redoBtn = elements.redoBtn || null;
@@ -43,17 +46,7 @@ export function initEditor(elements, callbacks) {
   if (undoBtn) undoBtn.addEventListener('click', undo);
   if (redoBtn) redoBtn.addEventListener('click', redo);
 
-  // Tab inserts spaces
-  document.addEventListener('keydown', (e) => {
-    if (e.key === 'Tab' && document.activeElement === editor) {
-      e.preventDefault();
-      const start = editor.selectionStart;
-      const end = editor.selectionEnd;
-      editor.value = editor.value.substring(0, start) + '  ' + editor.value.substring(end);
-      editor.selectionStart = editor.selectionEnd = start + 2;
-      editor.dispatchEvent(new Event('input'));
-    }
-  });
+  // (Tab / Shift+Tab / Enter list handling lives in format.js.)
 
   // Keyboard shortcuts for undo/redo (global, also works when not focused on editor)
   document.addEventListener('keydown', handleUndoRedoShortcuts);
@@ -85,12 +78,20 @@ export function updateStats() {
   const currentLine = lines.length;
   const currentCol = lines[lines.length - 1].length + 1;
   const totalChars = text.length;
-  const words = text.trim() ? text.trim().split(/\s+/).length : 0;
+  // Count prose, not image/link syntax (D27)
+  const prose = text
+    .replace(/!\[[^\]]*\]\([^)]*\)/g, ' ')
+    .replace(/\[([^\]]*)\]\([^)]*\)/g, '$1');
+  const words = prose.trim() ? prose.trim().split(/\s+/).length : 0;
 
   lineNum.textContent = currentLine;
   colNum.textContent = currentCol;
   charCount.textContent = totalChars;
   wordCountHeader.textContent = `${words} word${words !== 1 ? 's' : ''}`;
+  if (readTime) {
+    // ~200 words per minute
+    readTime.textContent = words === 0 ? '0 min' : `${Math.max(1, Math.round(words / 200))} min`;
+  }
 }
 
 export function syncScroll() {
@@ -129,6 +130,13 @@ export function pushHistory() {
 
   history.push(snapshot);
   if (history.length > MAX_HISTORY) {
+    history.shift();
+  }
+  // D2: also cap by bytes so huge documents (embedded images) do not
+  // multiply into hundreds of megabytes of snapshots.
+  let bytes = history.reduce((n, h) => n + h.content.length, 0);
+  while (history.length > 1 && bytes > MAX_HISTORY_BYTES) {
+    bytes -= history[0].content.length;
     history.shift();
   }
   historyIndex = history.length - 1;
@@ -183,6 +191,15 @@ function updateUndoRedoButtons() {
 }
 
 function handleUndoRedoShortcuts(e) {
+  // D7: leave native undo alone in other fields (find/replace boxes, etc.)
+  const active = document.activeElement;
+  if (
+    active &&
+    active !== editor &&
+    (active.tagName === 'INPUT' || active.tagName === 'TEXTAREA' || active.isContentEditable)
+  ) {
+    return;
+  }
   // Ctrl+Z: Undo
   if ((e.ctrlKey || e.metaKey) && (e.key === 'z' || e.key === 'Z') && !e.shiftKey) {
     e.preventDefault();

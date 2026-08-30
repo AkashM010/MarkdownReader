@@ -3,6 +3,8 @@
  * Rebuilds from the rendered headings after every render, highlights the
  * section currently in view, and jumps to a heading on click.
  */
+import { headingText } from './preview.js';
+
 let panel = null;
 let list = null;
 let toggle = null;
@@ -66,13 +68,14 @@ function rebuild() {
   const used = new Set();
   const fresh = [...preview.querySelectorAll('h1, h2, h3, h4, h5, h6')].map((h) => {
     // Namespaced ids so headings like "Editor" can't collide with app ids.
-    const base = `md-${slugify(h.textContent)}`;
+    const text = headingText(h);
+    const base = `md-${slugify(text)}`;
     let id = base;
     let n = 1;
     while (used.has(id)) id = `${base}-${n++}`;
     used.add(id);
     h.id = id;
-    return { el: h, level: Number(h.tagName[1]), text: h.textContent.trim() };
+    return { el: h, level: Number(h.tagName[1]), text };
   });
 
   // If the heading structure is unchanged (the common case while typing),

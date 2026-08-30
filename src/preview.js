@@ -7,6 +7,8 @@
  * modules (outline, scroll sync) can react.
  */
 import { marked } from 'marked';
+import markedKatex from 'marked-katex-extension';
+import DOMPurify from 'dompurify';
 import hljs from 'highlight.js/lib/common';
 import alertExtension from './extensions/alerts.js';
 import mermaidExtension from './extensions/mermaid-renderer.js';
@@ -68,6 +70,29 @@ marked.use({
     },
   },
 });
+
+// Math: $inline$ and $$display$$ via KaTeX (errors render as red source, never throw).
+// D4: a "$" inside a would-be formula means the opener was a currency amount
+// ("$5 and $x^2$"); reject that match so the lexer retries at the next "$".
+const katexExt = markedKatex({ throwOnError: false, output: 'htmlAndMathml' });
+for (const ext of katexExt.extensions || []) {
+  if (ext.name === 'inlineKatex' && typeof ext.tokenizer === 'function') {
+    const original = ext.tokenizer;
+    ext.tokenizer = function (src, tokens) {
+      const token = original.call(this, src, tokens);
+      if (token && /(^|[^\\])\$/.test(token.text || '')) return undefined;
+      return token;
+    };
+  }
+}
+marked.use(katexExt);
+
+/** Visible text of a heading — KaTeX nodes contribute their rendering once (D9). */
+export function headingText(el) {
+  const clone = el.cloneNode(true);
+  clone.querySelectorAll('.katex-mathml').forEach((n) => n.remove());
+  return clone.textContent.trim();
+}
 
 export function initPreview(elements) {
   preview = elements.preview;
@@ -143,9 +168,15 @@ async function render(raw) {
 
   try {
     const markdown = raw || '*Start typing your Markdown...*';
-    const tokens = marked.lexer(markdown);
+    // Leading YAML front matter (Hugo/Jekyll/Obsidian) renders as a
+    // metadata card instead of stray text.
+    const fm = FRONT_MATTER.exec(markdown);
+    const offset = fm ? fm[0].length : 0;
+    const leading = fm ? renderFrontMatter(fm[1], countLines(fm[0], 0, fm[0].length)) : '';
+    const tokens = marked.lexer(markdown.slice(offset));
     document.dispatchEvent(new CustomEvent('md-render-start'));
-    renderTokens(markdown, tokens);
+    renderTokens(markdown, tokens, offset, leading);
+    updateDocumentTitle();
 
     // Render mermaid diagrams
     const diagramsOk = await renderMermaidDiagrams();
@@ -184,11 +215,42 @@ async function render(raw) {
  * elements a token actually produced handles tokens that render zero
  * elements (HTML comments) or several (multi-root raw HTML).
  */
-function renderTokens(markdown, tokens) {
+const FRONT_MATTER = /^---[ \t]*\r?\n([\s\S]*?)\r?\n---[ \t]*(?:\r?\n|$)/;
+
+function renderFrontMatter(yaml, lineCount) {
+  const rows = [];
+  let parsable = true;
+  for (const line of yaml.split('\n')) {
+    if (line.trim() === '' || line.trim().startsWith('#')) continue;
+    const m = /^([A-Za-z0-9_.-]+)\s*:\s*(.*)$/.exec(line);
+    if (!m) {
+      parsable = false;
+      break;
+    }
+    rows.push(`<dt>${escapeHtml(m[1])}</dt><dd>${escapeHtml(m[2].replace(/^["']|["']$/g, '')) || '<span class="fm-empty">—</span>'}</dd>`);
+  }
+  const body = parsable && rows.length
+    ? `<dl>${rows.join('')}</dl>`
+    : `<pre class="fm-raw">${escapeHtml(yaml)}</pre>`;
+  return `<section class="front-matter" data-line="1" data-line-end="${lineCount}"><div class="fm-title">Document info</div>${body}</section>`;
+}
+
+function updateDocumentTitle() {
+  const h1 = preview.querySelector('h1');
+  const title = h1 ? headingText(h1) : '';
+  document.title = title ? `${title} · Read Your MD` : 'Read Your MD';
+}
+
+function renderTokens(markdown, tokens, startOffset = 0, leadingHtml = '') {
   const frag = document.createDocumentFragment();
   const tpl = document.createElement('template');
-  let cursor = 0;
-  let line = 1;
+  let cursor = startOffset;
+  let line = 1 + countLines(markdown, 0, startOffset);
+
+  if (leadingHtml) {
+    tpl.innerHTML = leadingHtml;
+    frag.append(...tpl.content.childNodes);
+  }
 
   for (const tok of tokens) {
     let startLine = line;
@@ -205,7 +267,8 @@ function renderTokens(markdown, tokens) {
 
     const body = tok.raw.replace(/\n+$/, '');
     const endLine = startLine + countLines(body, 0, body.length);
-    tpl.innerHTML = marked.parser([tok]);
+    // D28: raw HTML in a document must not run scripts or handlers.
+    tpl.innerHTML = DOMPurify.sanitize(marked.parser([tok]));
     for (const child of tpl.content.children) {
       child.dataset.line = startLine;
       child.dataset.lineEnd = endLine;
@@ -231,7 +294,8 @@ async function renderMermaidDiagrams() {
 
   for (const el of elements) {
     // The mermaid extension escapes its output, so textContent is exactly
-    // the raw diagram source.
+    // the raw diagram source. Keep it for export re-renders.
+    el.dataset.source = el.textContent;
     const key = `${theme}\n${el.textContent}`;
     const cached = mermaidCache.get(key);
     if (cached) {

@@ -22,3 +22,6 @@ Thumbs.db
 # Environment files
 .env
 .env.*
+
+# E2E test artifacts
+tests/e2e/results/

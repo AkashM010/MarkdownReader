@@ -5,12 +5,19 @@ import { initTheme, setTheme, toggleTheme, loadSavedTheme } from './theme.js';
 import { updateMermaidTheme } from './mermaid.js';
 import { initEditor, setEditorContent, getEditorContent, updateAll } from './editor.js';
 import { initPreview, scheduleRender, renderNow, invalidateMermaidCache } from './preview.js';
-import { initFileIO, markDirty, getFileName, restoreFileName } from './fileIO.js';
+import { initFileIO, markDirty, getFileName, restoreFileName, openHandle } from './fileIO.js';
+import { registerSW } from 'virtual:pwa-register';
+import 'katex/dist/katex.min.css';
 import { initPersistence, loadDraft, scheduleAutosave, flushDraft } from './persistence.js';
 import { initScrollSync } from './scrollsync.js';
 import { initOutline } from './outline.js';
 import { initLocate } from './locate.js';
 import { initFormat } from './format.js';
+import { initExport } from './export.js';
+import { initView, showUpdateBanner } from './view.js';
+import { initFind } from './find.js';
+import { initRecent } from './recent.js';
+import { initImages } from './images.js';
 
 // ──────────────────────────────────────
 // Default content
@@ -74,6 +81,14 @@ graph TD
     G --> B
 \`\`\`
 
+## Math
+
+Inline math like $E = mc^2$ and display equations. Prices such as $5 stay plain text; write \\$ to force a literal dollar sign inside a formula:
+
+$$
+\\int_0^1 x^2 \\, dx = \\frac{1}{3}
+$$
+
 ## Tables
 
 | Feature | Status | Priority |
@@ -101,6 +116,10 @@ graph TD
 | \`Ctrl+S\` | Save (in place when a file is open) |
 | \`Ctrl+Shift+S\` | Save as... |
 | \`Ctrl+Z\` / \`Ctrl+Y\` | Undo / redo |
+| \`Ctrl+F\` / \`Ctrl+H\` | Find / replace |
+| \`Ctrl+P\` | Print or save as PDF |
+| \`Ctrl+\\\\\` | Reader mode |
+| \`Ctrl+/\` | All shortcuts |
 | \`Ctrl+B\` / \`Ctrl+I\` | Bold / italic |
 | \`Ctrl+E\` | Inline code |
 | \`Ctrl+K\` | Insert link |
@@ -268,7 +287,7 @@ function toggleThemeWithFeedback() {
 }
 
 document.addEventListener('keydown', (e) => {
-  if (e.ctrlKey && e.shiftKey && (e.key === 'D' || e.key === 'd')) {
+  if ((e.ctrlKey || e.metaKey) && e.shiftKey && (e.key === 'D' || e.key === 'd')) {
     e.preventDefault();
     toggleThemeWithFeedback();
   }
@@ -301,6 +320,7 @@ initEditor(
     colNum: colNumEl,
     charCount: charCountEl,
     wordCountHeader: wordCountHeaderEl,
+    readTime: $('readTime'),
     undoBtn: $('undoBtn'),
     redoBtn: $('redoBtn'),
   },
@@ -343,6 +363,77 @@ initFormat({
   editor: editorEl,
   toolbar: $('toolbar'),
 });
+initExport(
+  {
+    preview: previewEl,
+    button: $('exportBtn'),
+    menu: $('exportMenu'),
+  },
+  showToast
+);
+initFind({
+  editor: editorEl,
+  bar: $('findBar'),
+  findInput: $('findInput'),
+  replaceInput: $('replaceInput'),
+  replaceRow: $('replaceRow'),
+  count: $('findCount'),
+  caseBtn: $('findCase'),
+  toggleReplaceBtn: $('findToggleReplace'),
+  prevBtn: $('findPrev'),
+  nextBtn: $('findNext'),
+  closeBtn: $('findClose'),
+  replaceOneBtn: $('replaceOne'),
+  replaceAllBtn: $('replaceAll'),
+});
+initView(
+  {
+    readerBtn: $('readerBtn'),
+    helpBtn: $('helpBtn'),
+    helpOverlay: $('helpOverlay'),
+    helpClose: document.querySelector('#helpOverlay .dialog-close'),
+    versionEls: [$('appVersion'), $('helpVersion')],
+    spellBtn: $('spellBtn'),
+    installBtn: $('installBtn'),
+    editor: editorEl,
+  },
+  showToast
+);
+
+// 4c. Offline support (service worker, production builds only).
+// Updates are offered, never forced (D10): a banner asks before reloading.
+const updateSW = registerSW({
+  immediate: true,
+  onNeedRefresh() {
+    showUpdateBanner(() => {
+      flushDraft();
+      updateSW(true);
+    });
+  },
+  onOfflineReady() {
+    showToast('Ready to work offline');
+  },
+  onRegisterError(err) {
+    console.warn('Service worker registration failed:', err);
+  },
+});
+
+// 4d. Files opened via the installed app ("Open with" on .md files)
+if ('launchQueue' in window) {
+  window.launchQueue.setConsumer(async (params) => {
+    const files = params.files || [];
+    if (files.length === 0) return;
+    try {
+      await openHandle(files[0]);
+      if (files.length > 1) {
+        showToast(`Opened the first of ${files.length} files — one document at a time`, 3500);
+      }
+    } catch (err) {
+      console.warn('Launch open failed:', err);
+      showToast('Could not open that file', 3000);
+    }
+  });
+}
 
 // 4. File I/O
 initFileIO(
@@ -357,24 +448,48 @@ initFileIO(
   showToast
 );
 
+// 4b. Recent files (File System Access handles in IndexedDB)
+initRecent(
+  {
+    button: $('recentBtn'),
+    menu: $('recentMenu'),
+    list: $('recentList'),
+  },
+  showToast
+);
+
+// 4e. Image paste / drop
+initImages({ editor: editorEl }, showToast);
+
 // 5. Autosave (draft persistence)
-initPersistence($('autosaveStatus'), () => ({
-  content: getEditorContent(),
-  fileName: getFileName(),
-}));
+initPersistence(
+  $('autosaveStatus'),
+  () => ({
+    content: getEditorContent(),
+    fileName: getFileName(),
+  }),
+  showToast
+);
 
 // 6. Content: restore the autosaved draft, else the welcome document
-const draft = loadDraft();
-if (draft) {
-  setEditorContent(draft.content);
-  restoreFileName(draft.fileName);
-  showToast('Restored your last draft');
-} else {
-  setEditorContent(defaultContent);
-}
-updateAll();
-scheduleRender(getEditorContent());
-flushDraft();
+(async () => {
+  let draft = null;
+  try {
+    draft = await loadDraft();
+  } catch (err) {
+    console.warn('Draft restore failed:', err);
+  }
+  if (draft) {
+    setEditorContent(draft.content);
+    restoreFileName(draft.fileName);
+    showToast('Restored your last draft');
+  } else {
+    setEditorContent(defaultContent);
+  }
+  updateAll();
+  scheduleRender(getEditorContent());
+  flushDraft();
+})();
 
 // 7. Window resize handler for mermaid re-render
 let resizeTimeout;

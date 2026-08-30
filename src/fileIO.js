@@ -94,6 +94,20 @@ export function getFileName() {
   return currentFileName;
 }
 
+/** Let listeners (recent files) know a real file handle is in play. */
+function announceHandle(handle) {
+  if (!handle) return;
+  document.dispatchEvent(new CustomEvent('md-file-handle', { detail: { handle } }));
+}
+
+/** Open a FileSystemFileHandle (installed-app file launch, recent files). */
+export async function openHandle(handle) {
+  // Errors (e.g. NotFoundError for a moved/deleted file) propagate so the
+  // caller can react specifically (D3).
+  const file = await handle.getFile();
+  loadFile(file, handle);
+}
+
 /** Restore the document name from an autosaved draft (no file handle). */
 export function restoreFileName(name) {
   if (name) currentFileName = name;
@@ -129,7 +143,9 @@ function loadFile(file, handle = null) {
   setStatus('busy', 'Loading');
   const reader = new FileReader();
   reader.onload = (e) => {
-    const content = e.target.result;
+    // Normalise Windows line endings so the first render matches the
+    // textarea's LF value (front matter, line mapping) — D5.
+    const content = String(e.target.result).replace(/\r\n?/g, '\n');
     setEditorContent(content);
     currentFileName = file.name;
     fileHandle = handle;
@@ -140,6 +156,7 @@ function loadFile(file, handle = null) {
     flushDraft();
     showToast(`Opened ${file.name}`);
     previewLoading.classList.remove('active');
+    announceHandle(handle);
   };
   reader.onerror = () => {
     previewLoading.classList.remove('active');
@@ -218,6 +235,7 @@ async function writeToHandle(handle) {
     updateFileBadge();
     flushDraft();
     showToast(`Saved ${currentFileName}`);
+    announceHandle(handle);
   } catch (err) {
     if (err?.name === 'AbortError') return;
     console.warn('Save failed:', err);

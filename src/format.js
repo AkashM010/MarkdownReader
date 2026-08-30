@@ -20,10 +20,10 @@ const PLACEHOLDER = {
 // Prefix detectors for line-level toggles
 const LINE_PREFIX = {
   quote: { text: '> ', test: /^> / },
-  ul: { text: '- ', test: /^[-*] (?!\[[ xX]\] )/ },
-  task: { text: '- [ ] ', test: /^[-*] \[[ xX]\] / },
+  ul: { text: '- ', test: /^[-*+] (?!\[[ xX]\] )/ },
+  task: { text: '- [ ] ', test: /^[-*+] \[[ xX]\] / },
 };
-const ANY_BLOCK_PREFIX = /^(> |[-*] \[[ xX]\] |[-*] |\d+\. )/;
+const ANY_BLOCK_PREFIX = /^(> |[-*+] \[[ xX]\] |[-*+] |\d+[.)] )/;
 const HEADING_PREFIX = /^#{1,6} /;
 
 const COMMANDS = {
@@ -82,6 +82,86 @@ export function initFormat(elements) {
   });
 
   editor.addEventListener('keydown', onShortcut);
+  editor.addEventListener('keydown', onEditingKeys);
+}
+
+// ──────────────────────────────────────
+// Smart lists: Enter continues a list, Tab / Shift+Tab indent it
+// ──────────────────────────────────────
+
+const LIST_LINE = /^(\s*)([-*+] \[[ xX]\] |[-*+] |(\d+)([.)]) |> )(.*)$/;
+
+function onEditingKeys(e) {
+  if (e.isComposing || e.keyCode === 229) return; // D11: IME composition
+  if (e.key === 'Enter' && !e.shiftKey && !e.ctrlKey && !e.metaKey && !e.altKey) {
+    if (continueList()) e.preventDefault();
+  } else if (e.key === 'Tab' && !e.ctrlKey && !e.metaKey && !e.altKey) {
+    e.preventDefault();
+    if (e.shiftKey) outdent();
+    else indent();
+  }
+}
+
+function continueList() {
+  const { start, end, value } = getSel();
+  if (start !== end) return false;
+  const ls = value.lastIndexOf('\n', start - 1) + 1;
+  const m = LIST_LINE.exec(value.slice(ls, start));
+  if (!m) return false;
+  const [, indentStr, prefix, num, delim, rest] = m;
+  let le = value.indexOf('\n', start);
+  if (le === -1) le = value.length;
+  const afterCaret = value.slice(start, le);
+
+  // Enter on an empty item ends the list.
+  if (rest.trim() === '' && afterCaret.trim() === '') {
+    replace(ls, start, indentStr, ls + indentStr.length, ls + indentStr.length);
+    return true;
+  }
+
+  let next = prefix;
+  if (num !== undefined) next = `${Number(num) + 1}${delim} `;
+  else if (/^[-*+] \[/.test(prefix)) next = prefix.replace(/\[[ xX]\]/, '[ ]');
+  const ins = '\n' + indentStr + next;
+  replace(start, start, ins, start + ins.length, start + ins.length);
+  return true;
+}
+
+function indent() {
+  const { start, end, value } = getSel();
+  const { ls, le } = lineRange(value, start, end);
+  const block = value.slice(ls, le);
+  const listy = /^\s*([-*+] |\d+[.)] |> )/.test(block);
+  if (start === end && !listy) {
+    replace(start, end, '  ', start + 2, start + 2);
+    return;
+  }
+  const out = block.split('\n').map((l) => '  ' + l).join('\n');
+  if (start === end) replace(ls, le, out, start + 2, start + 2);
+  else replace(ls, le, out, ls, ls + out.length);
+}
+
+function outdent() {
+  const { start, end, value } = getSel();
+  const { ls, le } = lineRange(value, start, end);
+  const block = value.slice(ls, le);
+  let firstRemoved = 0;
+  const out = block
+    .split('\n')
+    .map((l, i) => {
+      const m = /^( {1,2}|	)/.exec(l);
+      const removed = m ? m[0].length : 0;
+      if (i === 0) firstRemoved = removed;
+      return l.slice(removed);
+    })
+    .join('\n');
+  if (out === block) return;
+  if (start === end) {
+    const caret = Math.max(ls, start - firstRemoved);
+    replace(ls, le, out, caret, caret);
+  } else {
+    replace(ls, le, out, ls, ls + out.length);
+  }
 }
 
 export function run(cmd, arg) {
@@ -112,6 +192,7 @@ function closeMenus() {
 // ──────────────────────────────────────
 
 function onShortcut(e) {
+  if (e.isComposing || e.keyCode === 229) return;
   const ctrl = e.ctrlKey || e.metaKey;
   let cmd = null;
 
@@ -177,7 +258,9 @@ function wrapInline(before, after, key) {
   // Markers sit just outside the selection → unwrap
   if (
     value.slice(start - before.length, start) === before &&
-    value.slice(end, end + after.length) === after
+    value.slice(end, end + after.length) === after &&
+    value[start - before.length - 1] !== before[0] &&
+    value[end + after.length] !== after[0]
   ) {
     const from = start - before.length;
     replace(from, end + after.length, selected, from, from + selected.length);
@@ -211,12 +294,12 @@ function toggleOrdered() {
   const { ls, le } = lineRange(value, start, end);
   const lines = value.slice(ls, le).split('\n');
   const content = lines.filter((l) => l.trim() !== '');
-  const has = content.length > 0 && content.every((l) => /^\d+\. /.test(l));
+  const has = content.length > 0 && content.every((l) => /^\d+[.)] /.test(l));
 
   let n = 1;
   const out = lines
     .map((l) => {
-      if (has) return l.replace(/^\d+\. /, '');
+      if (has) return l.replace(/^\d+[.)] /, '');
       if (l.trim() === '' && lines.length > 1) return l;
       return `${n++}. ${l.replace(ANY_BLOCK_PREFIX, '')}`;
     })

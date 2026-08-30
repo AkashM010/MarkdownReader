@@ -4,6 +4,8 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Read Your MD</title>
+  <meta name="theme-color" content="#0c1120" />
+  <link rel="apple-touch-icon" href="/icons/icon-192.png" />
   <meta name="description" content="Read Your MD — a fast, beautiful Markdown reader and editor with live preview, diagrams, outline navigation, and in-place saving." />
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%232dd4bf'/%3E%3Cstop offset='1' stop-color='%233b82f6'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='32' height='32' rx='8' fill='url(%23g)'/%3E%3Cpath d='M7 21v-10l4 4.5 4-4.5v10' fill='none' stroke='%23071018' stroke-width='2.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3Cpath d='M23 11v7m0 0l-3-3m3 3l3-3' fill='none' stroke='%23071018' stroke-width='2.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -39,6 +41,15 @@
         </svg>
         <span class="action-label">Open</span>
       </button>
+      <div class="hdr-dropdown">
+        <button class="action-btn icon-only recent-btn" id="recentBtn" title="Recent files" aria-label="Recent files" aria-haspopup="menu" aria-expanded="false">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+        </button>
+        <div class="tb-menu hdr-menu recent-menu" id="recentMenu" role="menu">
+          <div class="recent-title">Recent files</div>
+          <div id="recentList"></div>
+        </div>
+      </div>
       <button class="action-btn primary" id="saveBtn" title="Save as .md file (Ctrl+S)">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
@@ -47,6 +58,21 @@
         </svg>
         <span class="action-label">Save</span>
       </button>
+      <div class="hdr-dropdown">
+        <button class="action-btn icon-only" id="exportBtn" title="Export (print, PDF, HTML, copy)" aria-label="Export" aria-haspopup="menu" aria-expanded="false">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+            <polyline points="7 10 12 15 17 10"/>
+            <line x1="12" y1="15" x2="12" y2="3"/>
+          </svg>
+        </button>
+        <div class="tb-menu hdr-menu" id="exportMenu" role="menu">
+          <button class="tb-menu-item" type="button" role="menuitem" data-export="print">Print / Save as PDF <span class="tb-kbd">Ctrl+P</span></button>
+          <button class="tb-menu-item" type="button" role="menuitem" data-export="html">Export HTML file</button>
+          <button class="tb-menu-item" type="button" role="menuitem" data-export="copy">Copy as rich text</button>
+          <button class="tb-menu-item" type="button" role="menuitem" data-export="copymd">Copy markdown</button>
+        </div>
+      </div>
       <div class="header-separator"></div>
       <button class="action-btn icon-only" id="undoBtn" title="Undo (Ctrl+Z)" aria-label="Undo" disabled>
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -60,8 +86,21 @@
           <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/>
         </svg>
       </button>
+      <button class="action-btn icon-only" id="readerBtn" title="Reader mode (Ctrl+\)" aria-label="Reader mode" aria-pressed="false">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/>
+          <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
+        </svg>
+      </button>
       <div class="header-separator"></div>
       <span class="status-badge" id="wordCountHeader">0 words</span>
+      <button class="action-btn icon-only" id="helpBtn" title="Shortcuts & about (Ctrl+/)" aria-label="Help">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"/>
+          <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
+          <line x1="12" y1="17" x2="12.01" y2="17"/>
+        </svg>
+      </button>
       <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme" title="Toggle dark/light mode (Ctrl+Shift+D)">
         <span class="toggle-flipper" aria-hidden="true">
           <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -176,10 +215,40 @@
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect width="8" height="8" x="3" y="3" rx="2"/><path d="M7 11v4a2 2 0 0 0 2 2h4"/><rect width="8" height="8" x="13" y="13" rx="2"/></svg>
           </button>
         </div>
+        <div class="tb-spacer"></div>
+        <div class="tb-group">
+          <button class="tb-btn" type="button" id="spellBtn" title="Spellcheck" aria-label="Toggle spellcheck" aria-pressed="false">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 16 6-12 6 12"/><path d="M8 12h8"/><path d="m16 20 2 2 4-4"/></svg>
+          </button>
+        </div>
       </div>
       <div class="editor-wrapper">
         <div class="line-numbers" id="lineNumbers">1</div>
         <textarea id="editor" placeholder="Type your Markdown here..." spellcheck="false" wrap="off" autofocus></textarea>
+        <div class="findbar" id="findBar" hidden>
+          <div class="find-row">
+            <input id="findInput" type="text" placeholder="Find" spellcheck="false" aria-label="Find" />
+            <span class="find-count" id="findCount"></span>
+            <button class="tb-btn" type="button" id="findPrev" title="Previous match (Shift+Enter)" aria-label="Previous match">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"/></svg>
+            </button>
+            <button class="tb-btn" type="button" id="findNext" title="Next match (Enter)" aria-label="Next match">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+            </button>
+            <button class="tb-btn find-case" type="button" id="findCase" title="Match case" aria-pressed="false">Aa</button>
+            <button class="tb-btn" type="button" id="findToggleReplace" title="Replace (Ctrl+H)" aria-label="Toggle replace" aria-pressed="false">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>
+            </button>
+            <button class="tb-btn" type="button" id="findClose" title="Close (Esc)" aria-label="Close find">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            </button>
+          </div>
+          <div class="find-row" id="replaceRow" hidden>
+            <input id="replaceInput" type="text" placeholder="Replace with" spellcheck="false" aria-label="Replace with" />
+            <button class="tb-btn tb-text" type="button" id="replaceOne" title="Replace this match (Enter)">Replace</button>
+            <button class="tb-btn tb-text" type="button" id="replaceAll" title="Replace all matches (Ctrl+Enter)">All</button>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -240,10 +309,17 @@
         <span class="label">Chars</span>
         <span class="value" id="charCount">0</span>
       </span>
+      <span class="status-item">
+        <span class="label">Read</span>
+        <span class="value" id="readTime">0 min</span>
+      </span>
     </div>
     <div class="status-right">
       <span class="status-item">
         <span class="autosave-status" id="autosaveStatus"></span>
+      </span>
+      <span class="status-item">
+        <span class="app-version" id="appVersion" title="Read Your MD version">v—</span>
       </span>
       <span class="status-item">
         <span class="theme-dot" aria-hidden="true"></span>
@@ -257,6 +333,54 @@
 
   <!-- ===== Toast ===== -->
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <!-- ===== Help / about overlay ===== -->
+  <div class="overlay" id="helpOverlay" hidden>
+    <div class="dialog" role="dialog" aria-modal="true" aria-labelledby="helpTitle">
+      <div class="dialog-head">
+        <div>
+          <h2 id="helpTitle">Read Your MD</h2>
+          <span class="dialog-version" id="helpVersion">v—</span>
+        </div>
+        <button class="pane-tool dialog-close" type="button" aria-label="Close">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+      <div class="dialog-body">
+        <div class="kbd-section">
+          <h3>Document</h3>
+          <div class="kbd-row"><span>Open file</span><kbd>Ctrl+O</kbd></div>
+          <div class="kbd-row"><span>Save (in place when a file is open)</span><kbd>Ctrl+S</kbd></div>
+          <div class="kbd-row"><span>Save as…</span><kbd>Ctrl+Shift+S</kbd></div>
+          <div class="kbd-row"><span>Print / Save as PDF</span><kbd>Ctrl+P</kbd></div>
+          <div class="kbd-row"><span>Find / Replace</span><kbd>Ctrl+F</kbd> <kbd>Ctrl+H</kbd></div>
+          <div class="kbd-row"><span>Undo / Redo</span><kbd>Ctrl+Z</kbd> <kbd>Ctrl+Y</kbd></div>
+        </div>
+        <div class="kbd-section">
+          <h3>View</h3>
+          <div class="kbd-row"><span>Reader mode</span><kbd>Ctrl+\</kbd></div>
+          <div class="kbd-row"><span>Dark / light theme</span><kbd>Ctrl+Shift+D</kbd></div>
+          <div class="kbd-row"><span>This panel</span><kbd>Ctrl+/</kbd></div>
+        </div>
+        <div class="kbd-section">
+          <h3>Formatting</h3>
+          <div class="kbd-row"><span>Bold / Italic</span><kbd>Ctrl+B</kbd> <kbd>Ctrl+I</kbd></div>
+          <div class="kbd-row"><span>Inline code</span><kbd>Ctrl+E</kbd></div>
+          <div class="kbd-row"><span>Link</span><kbd>Ctrl+K</kbd></div>
+          <div class="kbd-row"><span>Strikethrough</span><kbd>Alt+Shift+5</kbd></div>
+          <div class="kbd-row"><span>Bullet / Numbered list</span><kbd>Ctrl+Shift+8</kbd> <kbd>Ctrl+Shift+7</kbd></div>
+          <div class="kbd-row"><span>Task list</span><kbd>Ctrl+Shift+L</kbd></div>
+          <div class="kbd-row"><span>Quote</span><kbd>Ctrl+Shift+.</kbd></div>
+          <div class="kbd-row"><span>Indent / outdent list</span><kbd>Tab</kbd> <kbd>Shift+Tab</kbd></div>
+        </div>
+        <p class="dialog-tip">Tip: click any block in the preview to jump to its source; click in the editor to spotlight the rendered block.</p>
+        <button class="action-btn primary install-btn" type="button" id="installBtn" hidden>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Install as an app
+        </button>
+      </div>
+    </div>
+  </div>
 
   <!-- ===== Script entry ===== -->
   <script type="module" src="/src/main.js"></script>
