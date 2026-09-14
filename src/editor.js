@@ -56,6 +56,9 @@ export function setEditorContent(content) {
   editor.value = content;
   updateAll();
   pushHistory();
+  // A whole-document swap (open, draft restore, recent file) — distinct from
+  // typing, so presentation layers can treat it as a new document.
+  document.dispatchEvent(new CustomEvent('md-document-loaded'));
 }
 
 export function getEditorContent() {

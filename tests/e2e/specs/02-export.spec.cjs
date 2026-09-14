@@ -54,7 +54,7 @@ test.describe('Phase 1 — Print / PDF', () => {
     await expect(page.locator('#themeLabel')).toHaveText('Dark');
     // ...diagrams get light-palette copies used only while printing...
     await expect(page.locator('#preview .mermaid-print svg')).toHaveCount(1);
-    expect(await page.locator('#preview .mermaid-print').innerHTML()).toContain('#ccfbf1');
+    expect(await page.locator('#preview .mermaid-print').innerHTML()).toContain('#cffafe');
     // ...and the print media itself is light.
     await page.emulateMedia({ media: 'print' });
     const paper = await page.evaluate(() => ({
@@ -64,11 +64,11 @@ test.describe('Phase 1 — Print / PDF', () => {
       lightDiagramShown: getComputedStyle(document.querySelector('#preview .mermaid-print')).display !== 'none',
     }));
     await page.emulateMedia({ media: 'screen' });
-    expect(paper).toEqual({ body: 'rgb(255, 255, 255)', text: 'rgb(35, 41, 58)', darkDiagramHidden: true, lightDiagramShown: true });
+    expect(paper).toEqual({ body: 'rgb(255, 255, 255)', text: 'rgb(16, 24, 40)', darkDiagramHidden: true, lightDiagramShown: true });
     // afterprint → copies removed, live dark diagram untouched
     await expect(page.locator('#preview .mermaid-print')).toHaveCount(0, { timeout: 6000 });
     await expect(page.locator('#preview .mermaid svg')).toHaveCount(1);
-    expect(await page.locator('#preview .mermaid').innerHTML()).toContain('#134e4a');
+    expect(await page.locator('#preview .mermaid').innerHTML()).toContain('#0e3a46');
     app.expectNoErrors();
   });
 
@@ -189,12 +189,12 @@ test.describe('Phase 1 — Export HTML file', () => {
     await app.setContent('# D\n\n```mermaid\ngraph TD\n  A-->B\n```');
     await expect(page.locator('#preview .mermaid svg')).toHaveCount(1);
     const before = await page.locator('#preview .mermaid').innerHTML();
-    expect(before).toContain('#134e4a');
+    expect(before).toContain('#0e3a46');
     const { body } = await doExport(app);
-    expect(body).toContain('#ccfbf1');
-    expect(body).not.toContain('#134e4a');
+    expect(body).toContain('#cffafe');
+    expect(body).not.toContain('#0e3a46');
     const after = await page.locator('#preview .mermaid').innerHTML();
-    expect(after).toContain('#134e4a');
+    expect(after).toContain('#0e3a46');
     const stray = await page.locator('[id^="export-diagram"], [id^="dexport-diagram"]').count();
     expect(stray, 'temporary mermaid export nodes left in the live DOM').toBe(0);
   });

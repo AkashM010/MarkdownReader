@@ -85,7 +85,7 @@ test.describe('Regression — pre-existing features still work', () => {
     await expect(app.page.locator('html')).toHaveAttribute('data-theme', 'light');
     await expect(app.toast()).toHaveText('Switched to light mode');
     await app.waitRendered();
-    expect(await app.page.locator('#preview .mermaid').innerHTML()).toContain('#ccfbf1');
+    expect(await app.page.locator('#preview .mermaid').innerHTML()).toContain('#cffafe');
     await app.page.reload();
     await app.page.waitForSelector('#editor');
     await expect(app.page.locator('html')).toHaveAttribute('data-theme', 'light');

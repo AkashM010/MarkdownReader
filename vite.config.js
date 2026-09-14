@@ -18,8 +18,8 @@ export default defineConfig({
         short_name: 'ReadYourMD',
         description:
           'A fast, beautiful Markdown reader and editor with live preview, diagrams, outline navigation, and in-place saving.',
-        theme_color: '#0c1120',
-        background_color: '#0c1120',
+        theme_color: '#060810',
+        background_color: '#060810',
         display: 'standalone',
         start_url: '/',
         scope: '/',

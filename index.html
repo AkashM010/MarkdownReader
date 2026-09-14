@@ -2,19 +2,19 @@
 <html lang="en" data-theme="dark">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <title>Read Your MD</title>
-  <meta name="theme-color" content="#0c1120" />
+  <meta name="theme-color" content="#060810" />
   <link rel="apple-touch-icon" href="/icons/icon-192.png" />
   <meta name="description" content="Read Your MD — a fast, beautiful Markdown reader and editor with live preview, diagrams, outline navigation, and in-place saving." />
-  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%232dd4bf'/%3E%3Cstop offset='1' stop-color='%233b82f6'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='32' height='32' rx='8' fill='url(%23g)'/%3E%3Cpath d='M7 21v-10l4 4.5 4-4.5v10' fill='none' stroke='%23071018' stroke-width='2.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3Cpath d='M23 11v7m0 0l-3-3m3 3l3-3' fill='none' stroke='%23071018' stroke-width='2.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E" />
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%2322d3ee'/%3E%3Cstop offset='1' stop-color='%23818cf8'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='32' height='32' rx='9' fill='url(%23g)'/%3E%3Cpath d='M7 21v-10l4 4.5 4-4.5v10' fill='none' stroke='%2304222b' stroke-width='2.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3Cpath d='M23 11v7m0 0l-3-3m3 3l3-3' fill='none' stroke='%2304222b' stroke-width='2.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Lora:ital,wght@0,400;0,500;0,600;1,400&family=JetBrains+Mono:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;450;500;550;600;650;700&family=Lora:ital,wght@0,400;0,500;0,600;1,400&family=JetBrains+Mono:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="/src/style.css" />
 </head>
 <body>
-  <!-- ===== Ambient background ===== -->
+  <!-- ===== Ambient field ===== -->
   <div class="ambient" aria-hidden="true">
     <div class="ambient-blob ambient-a"></div>
     <div class="ambient-blob ambient-b"></div>
@@ -34,91 +34,102 @@
         <span class="logo-name">Read Your<span class="logo-name-alt">MD</span></span>
       </div>
     </div>
+
     <div class="header-actions">
-      <button class="action-btn" id="openBtn" title="Open .md file (Ctrl+O)">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/>
-        </svg>
-        <span class="action-label">Open</span>
-      </button>
-      <div class="hdr-dropdown">
-        <button class="action-btn icon-only recent-btn" id="recentBtn" title="Recent files" aria-label="Recent files" aria-haspopup="menu" aria-expanded="false">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
-        </button>
-        <div class="tb-menu hdr-menu recent-menu" id="recentMenu" role="menu">
-          <div class="recent-title">Recent files</div>
-          <div id="recentList"></div>
-        </div>
-      </div>
-      <button class="action-btn primary" id="saveBtn" title="Save as .md file (Ctrl+S)">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
-          <polyline points="17 21 17 13 7 13 7 21"/>
-          <polyline points="7 3 7 8 15 8"/>
-        </svg>
-        <span class="action-label">Save</span>
-      </button>
-      <div class="hdr-dropdown">
-        <button class="action-btn icon-only" id="exportBtn" title="Export (print, PDF, HTML, copy)" aria-label="Export" aria-haspopup="menu" aria-expanded="false">
+      <!-- Cluster 1 — the document -->
+      <div class="hdr-cluster">
+        <button class="action-btn" id="openBtn" title="Open .md file (Ctrl+O)">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-            <polyline points="7 10 12 15 17 10"/>
-            <line x1="12" y1="15" x2="12" y2="3"/>
+            <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/>
           </svg>
+          <span class="action-label">Open</span>
         </button>
-        <div class="tb-menu hdr-menu" id="exportMenu" role="menu">
-          <button class="tb-menu-item" type="button" role="menuitem" data-export="print">Print / Save as PDF <span class="tb-kbd">Ctrl+P</span></button>
-          <button class="tb-menu-item" type="button" role="menuitem" data-export="html">Export HTML file</button>
-          <button class="tb-menu-item" type="button" role="menuitem" data-export="copy">Copy as rich text</button>
-          <button class="tb-menu-item" type="button" role="menuitem" data-export="copymd">Copy markdown</button>
+        <div class="hdr-dropdown">
+          <button class="action-btn icon-only recent-btn" id="recentBtn" title="Recent files" aria-label="Recent files" aria-haspopup="menu" aria-expanded="false">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+          </button>
+          <div class="tb-menu hdr-menu recent-menu" id="recentMenu" role="menu">
+            <div class="recent-title">Recent files</div>
+            <div id="recentList"></div>
+          </div>
+        </div>
+        <button class="action-btn primary" id="saveBtn" title="Save as .md file (Ctrl+S)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
+            <polyline points="17 21 17 13 7 13 7 21"/>
+            <polyline points="7 3 7 8 15 8"/>
+          </svg>
+          <span class="action-label">Save</span>
+        </button>
+        <div class="hdr-dropdown">
+          <button class="action-btn icon-only" id="exportBtn" title="Export (print, PDF, HTML, copy)" aria-label="Export" aria-haspopup="menu" aria-expanded="false">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+              <polyline points="7 10 12 15 17 10"/>
+              <line x1="12" y1="15" x2="12" y2="3"/>
+            </svg>
+          </button>
+          <div class="tb-menu hdr-menu" id="exportMenu" role="menu">
+            <button class="tb-menu-item" type="button" role="menuitem" data-export="print">Print / Save as PDF <span class="tb-kbd">Ctrl+P</span></button>
+            <button class="tb-menu-item" type="button" role="menuitem" data-export="html">Export HTML file</button>
+            <button class="tb-menu-item" type="button" role="menuitem" data-export="copy">Copy as rich text</button>
+            <button class="tb-menu-item" type="button" role="menuitem" data-export="copymd">Copy markdown</button>
+          </div>
         </div>
       </div>
-      <div class="header-separator"></div>
-      <button class="action-btn icon-only" id="undoBtn" title="Undo (Ctrl+Z)" aria-label="Undo" disabled>
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <polyline points="1 4 1 10 7 10"/>
-          <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/>
-        </svg>
-      </button>
-      <button class="action-btn icon-only" id="redoBtn" title="Redo (Ctrl+Y)" aria-label="Redo" disabled>
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <polyline points="23 4 23 10 17 10"/>
-          <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/>
-        </svg>
-      </button>
-      <button class="action-btn icon-only" id="readerBtn" title="Reader mode (Ctrl+\)" aria-label="Reader mode" aria-pressed="false">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/>
-          <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
-        </svg>
-      </button>
-      <div class="header-separator"></div>
+
+      <!-- Cluster 2 — history -->
+      <div class="hdr-cluster">
+        <button class="action-btn icon-only" id="undoBtn" title="Undo (Ctrl+Z)" aria-label="Undo" disabled>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="1 4 1 10 7 10"/>
+            <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/>
+          </svg>
+        </button>
+        <button class="action-btn icon-only" id="redoBtn" title="Redo (Ctrl+Y)" aria-label="Redo" disabled>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="23 4 23 10 17 10"/>
+            <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/>
+          </svg>
+        </button>
+      </div>
+
       <span class="status-badge" id="wordCountHeader">0 words</span>
-      <button class="action-btn icon-only" id="helpBtn" title="Shortcuts & about (Ctrl+/)" aria-label="Help">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <circle cx="12" cy="12" r="10"/>
-          <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
-          <line x1="12" y1="17" x2="12.01" y2="17"/>
-        </svg>
-      </button>
-      <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme" title="Toggle dark/light mode (Ctrl+Shift+D)">
-        <span class="toggle-flipper" aria-hidden="true">
-          <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <circle cx="12" cy="12" r="4.5"/>
-            <line x1="12" y1="1.5" x2="12" y2="3.5"/>
-            <line x1="12" y1="20.5" x2="12" y2="22.5"/>
-            <line x1="4.6" y1="4.6" x2="6" y2="6"/>
-            <line x1="18" y1="18" x2="19.4" y2="19.4"/>
-            <line x1="1.5" y1="12" x2="3.5" y2="12"/>
-            <line x1="20.5" y1="12" x2="22.5" y2="12"/>
-            <line x1="4.6" y1="19.4" x2="6" y2="18"/>
-            <line x1="18" y1="6" x2="19.4" y2="4.6"/>
+
+      <!-- Cluster 3 — the view -->
+      <div class="hdr-cluster">
+        <button class="action-btn icon-only" id="readerBtn" title="Reader mode (Ctrl+\)" aria-label="Reader mode" aria-pressed="false">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/>
+            <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
           </svg>
-          <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+        </button>
+        <button class="action-btn icon-only" id="helpBtn" title="Shortcuts &amp; about (Ctrl+/)" aria-label="Help">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"/>
+            <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
+            <line x1="12" y1="17" x2="12.01" y2="17"/>
           </svg>
-        </span>
-      </button>
+        </button>
+        <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme" title="Toggle dark/light mode (Ctrl+Shift+D)">
+          <span class="toggle-flipper" aria-hidden="true">
+            <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="4.5"/>
+              <line x1="12" y1="1.5" x2="12" y2="3.5"/>
+              <line x1="12" y1="20.5" x2="12" y2="22.5"/>
+              <line x1="4.6" y1="4.6" x2="6" y2="6"/>
+              <line x1="18" y1="18" x2="19.4" y2="19.4"/>
+              <line x1="1.5" y1="12" x2="3.5" y2="12"/>
+              <line x1="20.5" y1="12" x2="22.5" y2="12"/>
+              <line x1="4.6" y1="19.4" x2="6" y2="18"/>
+              <line x1="18" y1="6" x2="19.4" y2="4.6"/>
+            </svg>
+            <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+            </svg>
+          </span>
+        </button>
+      </div>
     </div>
   </header>
 
@@ -136,7 +147,8 @@
         </span>
         <span class="pane-badge" id="fileNameBadge">untitled.md</span>
       </div>
-      <div class="toolbar" id="toolbar" role="toolbar" aria-label="Formatting">
+      <div class="editor-toolbar-wrap">
+        <div class="toolbar" id="toolbar" role="toolbar" aria-label="Formatting">
         <div class="tb-group">
           <div class="tb-dropdown">
             <button class="tb-btn" type="button" data-menu="heading" title="Heading" aria-haspopup="menu" aria-expanded="false">
@@ -204,11 +216,11 @@
               <svg class="tb-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
             </button>
             <div class="tb-menu" role="menu">
-              <button class="tb-menu-item" type="button" role="menuitem" data-cmd="alert" data-arg="NOTE"><span class="tb-dot" style="--c:#3b82f6"></span>Note</button>
-              <button class="tb-menu-item" type="button" role="menuitem" data-cmd="alert" data-arg="TIP"><span class="tb-dot" style="--c:#22c55e"></span>Tip</button>
-              <button class="tb-menu-item" type="button" role="menuitem" data-cmd="alert" data-arg="IMPORTANT"><span class="tb-dot" style="--c:#8b5cf6"></span>Important</button>
-              <button class="tb-menu-item" type="button" role="menuitem" data-cmd="alert" data-arg="WARNING"><span class="tb-dot" style="--c:#d97706"></span>Warning</button>
-              <button class="tb-menu-item" type="button" role="menuitem" data-cmd="alert" data-arg="CAUTION"><span class="tb-dot" style="--c:#dc2626"></span>Caution</button>
+              <button class="tb-menu-item" type="button" role="menuitem" data-cmd="alert" data-arg="NOTE"><span class="tb-dot" style="--c:#60a5fa"></span>Note</button>
+              <button class="tb-menu-item" type="button" role="menuitem" data-cmd="alert" data-arg="TIP"><span class="tb-dot" style="--c:#34d399"></span>Tip</button>
+              <button class="tb-menu-item" type="button" role="menuitem" data-cmd="alert" data-arg="IMPORTANT"><span class="tb-dot" style="--c:#a78bfa"></span>Important</button>
+              <button class="tb-menu-item" type="button" role="menuitem" data-cmd="alert" data-arg="WARNING"><span class="tb-dot" style="--c:#f5a524"></span>Warning</button>
+              <button class="tb-menu-item" type="button" role="menuitem" data-cmd="alert" data-arg="CAUTION"><span class="tb-dot" style="--c:#f87171"></span>Caution</button>
             </div>
           </div>
           <button class="tb-btn" type="button" data-cmd="mermaid" title="Diagram (Mermaid)">
@@ -221,6 +233,8 @@
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 16 6-12 6 12"/><path d="M8 12h8"/><path d="m16 20 2 2 4-4"/></svg>
           </button>
         </div>
+        </div>
+        <span class="toolbar-scroll-hint" aria-hidden="true"></span>
       </div>
       <div class="editor-wrapper">
         <div class="line-numbers" id="lineNumbers">1</div>

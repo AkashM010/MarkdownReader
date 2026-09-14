@@ -1,9 +1,13 @@
 /**
  * Mermaid module — initializes mermaid.js with theme-appropriate colors.
+ *
+ * Mermaid bakes colours into each SVG at render time, so these values are a
+ * hand-kept mirror of the Deep Glass palette in style.css rather than live
+ * custom properties. Update both together.
  */
 import mermaid from 'mermaid';
 
-const FONT_STACK = "'Space Grotesk', 'Segoe UI', system-ui, sans-serif";
+const FONT_STACK = "'Inter', 'Segoe UI Variable', 'Segoe UI', system-ui, sans-serif";
 
 export function updateMermaidTheme(theme) {
   if (theme === 'dark') {
@@ -12,12 +16,12 @@ export function updateMermaidTheme(theme) {
       theme: 'base',
       themeVariables: {
         background: 'transparent',
-        primaryColor: '#134e4a',
-        primaryBorderColor: '#2dd4bf',
-        primaryTextColor: '#e8edf4',
-        lineColor: '#5f6b7c',
-        secondaryColor: '#1b2539',
-        tertiaryColor: '#111828',
+        primaryColor: '#0e3a46',        /* node fill — cyan, deep      */
+        primaryBorderColor: '#22d3ee',  /* --accent                    */
+        primaryTextColor: '#f3f7fc',    /* --text-primary              */
+        lineColor: '#8698ae',           /* --text-muted                */
+        secondaryColor: '#1c1e26',      /* --surface-3 composited      */
+        tertiaryColor: '#10121a',       /* --surface-1 composited      */
         fontFamily: FONT_STACK,
       },
     });
@@ -27,11 +31,11 @@ export function updateMermaidTheme(theme) {
       theme: 'base',
       themeVariables: {
         background: 'transparent',
-        primaryColor: '#ccfbf1',
-        primaryBorderColor: '#0d9488',
-        primaryTextColor: '#262b36',
-        lineColor: '#99a0ab',
-        secondaryColor: '#f3f0e9',
+        primaryColor: '#cffafe',        /* node fill — cyan, pale      */
+        primaryBorderColor: '#0e7490',  /* --accent                    */
+        primaryTextColor: '#101828',    /* --text-primary              */
+        lineColor: '#8b97a6',
+        secondaryColor: '#f5f7fa',      /* --surface-2 composited      */
         tertiaryColor: '#ffffff',
         fontFamily: FONT_STACK,
       },

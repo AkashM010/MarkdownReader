@@ -1,7 +1,7 @@
 /**
  * Main entry point — wires together all modules.
  */
-import { initTheme, setTheme, toggleTheme, loadSavedTheme } from './theme.js';
+import { initTheme, setTheme, getTheme, loadSavedTheme } from './theme.js';
 import { updateMermaidTheme } from './mermaid.js';
 import { initEditor, setEditorContent, getEditorContent, updateAll } from './editor.js';
 import { initPreview, scheduleRender, renderNow, invalidateMermaidCache } from './preview.js';
@@ -18,6 +18,7 @@ import { initView, showUpdateBanner } from './view.js';
 import { initFind } from './find.js';
 import { initRecent } from './recent.js';
 import { initImages } from './images.js';
+import { initMotion, armPreviewReveals, withThemeTransition } from './motion.js';
 
 // ──────────────────────────────────────
 // Default content
@@ -282,7 +283,13 @@ document.querySelectorAll('.pane').forEach((pane, i) => {
 // Theme toggle wrapper
 // ──────────────────────────────────────
 function toggleThemeWithFeedback() {
-  const next = toggleTheme();
+  // The next theme is computed here rather than read back from the
+  // transition: startViewTransition runs its callback asynchronously, so
+  // nothing the callback returns is available to us.
+  const next = getTheme() === 'dark' ? 'light' : 'dark';
+  // The wipe radiates from the toggle itself, so the new theme reads as
+  // spreading out of the control the user just pressed.
+  withThemeTransition(() => setTheme(next), themeToggleEl);
   showToast(`Switched to ${next} mode`);
 }
 
@@ -490,6 +497,10 @@ initPersistence(
   scheduleRender(getEditorContent());
   flushDraft();
 })();
+
+// 6b. Motion layer — boot choreography, preview reveals, magnetic controls.
+// Last, so every element it touches already exists and is wired up.
+initMotion();
 
 // 7. Window resize handler for mermaid re-render
 let resizeTimeout;
