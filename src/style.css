@@ -125,6 +125,10 @@ html {
   --accent-link: #67e8f9;
   --accent-ink: #04222b;
   --accent-gradient: linear-gradient(135deg, #22d3ee 0%, #818cf8 100%);
+  /* Its own gradient, not the accent one: that is tuned to sit *behind*
+     white text on a button, where a light cyan is fine. As text it has to
+     carry itself. Flatter angle so the ramp spans the width of "MD". */
+  --wordmark-gradient: linear-gradient(105deg, #22d3ee 0%, #818cf8 100%);
   --accent-soft: rgba(34, 211, 238, 0.13);
   --accent-softer: rgba(34, 211, 238, 0.07);
   --accent-ring: rgba(34, 211, 238, 0.42);
@@ -182,24 +186,33 @@ html {
 [data-theme="light"] {
   color-scheme: light;
 
-  --bg-body: #e9edf4;
+  /* Light is not dark inverted. White-over-near-black produces big
+     perceptual steps; white-over-near-white produces almost none, so the
+     first cut of this theme collapsed into one flat white plane —
+     chrome sat just 1.4 L* from the pane and the "sunken" editor well
+     was the *brightest* surface on screen. This ladder is set in CIE L*
+     so the steps are felt, and elevation is carried by shadow, which is
+     the only axis light has once a surface is already white. */
+  --bg-body: #e4e9f0;                       /* ground  L* 92.1 */
 
   --field:
-    radial-gradient(1100px 720px at 82% -14%, rgba(14, 116, 144, 0.13), transparent 62%),
-    radial-gradient(880px 620px at -10% 106%, rgba(99, 102, 241, 0.11), transparent 62%),
-    radial-gradient(720px 520px at 46% 122%, rgba(13, 148, 136, 0.08), transparent 62%);
+    radial-gradient(1100px 720px at 82% -14%, rgba(14, 116, 144, 0.20), transparent 62%),
+    radial-gradient(880px 620px at -10% 106%, rgba(99, 102, 241, 0.18), transparent 62%),
+    radial-gradient(720px 520px at 46% 122%, rgba(13, 148, 136, 0.12), transparent 62%);
 
-  --surface-1: rgba(255, 255, 255, 0.78);   /* pane   → #fafbfd */
-  --surface-2: rgba(255, 255, 255, 0.55);   /* chrome → #f5f7fa */
-  --surface-3: rgba(255, 255, 255, 0.95);   /* raised → #fefefe */
-  --surface-sunken: rgba(255, 255, 255, 0.88);
-  --surface-solid: #fafbfd;
+  --surface-1: rgba(255, 255, 255, 0.94);   /* pane    L* 99.5  (+7.4 over ground) */
+  --surface-2: rgba(255, 255, 255, 0.46);   /* chrome  L* 96.0  (-3.5 under pane)  */
+  --surface-3: rgba(255, 255, 255, 0.66);   /* raised  L* 98.0                     */
+  /* Recessed by darkening, exactly as dark mode does — a lighter well
+     inside a white pane reads as raised, which inverted the metaphor. */
+  --surface-sunken: rgba(16, 24, 40, 0.05); /* well    L* 95.6  (-3.9 under pane)  */
+  --surface-solid: #fdfefe;
   --surface-raised-solid: #ffffff;
 
-  --border-hair: rgba(16, 24, 40, 0.09);
-  --border-soft: rgba(16, 24, 40, 0.14);
-  --border-strong: rgba(16, 24, 40, 0.26);
-  --edge-light: rgba(255, 255, 255, 0.95);
+  --border-hair: rgba(16, 24, 40, 0.11);
+  --border-soft: rgba(16, 24, 40, 0.16);
+  --border-strong: rgba(16, 24, 40, 0.28);
+  --edge-light: rgba(255, 255, 255, 1);
 
   --text-primary: #101828;
   --text-secondary: #475467;
@@ -212,8 +225,16 @@ html {
   --accent-link: #0e7490;
   --accent-ink: #ffffff;
   --accent-gradient: linear-gradient(135deg, #0891b2 0%, #4f46e5 100%);
+  /* Deeper than the button gradient — as text on the light chrome, the
+     button's #0891b2 measured only 3.31:1 and the "M" read weaker than
+     the "D". These endpoints clear 4.81 and 7.10 on chrome. */
+  --wordmark-gradient: linear-gradient(105deg, #0e7490 0%, #4338ca 100%);
   --accent-soft: rgba(14, 116, 144, 0.10);
-  --accent-softer: rgba(14, 116, 144, 0.055);
+  /* Kept light: this wash sits under accent-coloured text (the word-count
+     chip, blockquotes), and every point of tint it adds is subtracted
+     from that text's contrast. At 0.055 on the new chrome the chip
+     measured 4.49 — just under AA. */
+  --accent-softer: rgba(14, 116, 144, 0.035);
   --accent-ring: rgba(14, 116, 144, 0.38);
   --glow: rgba(14, 116, 144, 0.30);
   --selection: rgba(14, 116, 144, 0.20);
@@ -223,15 +244,23 @@ html {
   --grain-opacity: 0.03;
   --grid-dot: rgba(16, 24, 40, 0.10);
 
-  --el-1: 0 1px 2px rgba(16, 24, 40, 0.06);
-  --el-2: 0 4px 12px -2px rgba(16, 24, 40, 0.10);
-  --el-3: 0 12px 32px -8px rgba(16, 24, 40, 0.16);
-  --el-4: 0 28px 68px -18px rgba(16, 24, 40, 0.24);
+  /* Light can't signal elevation by getting brighter — the top surface is
+     already white — so shadow does all of it. Each step pairs a tight
+     contact shadow with a wide soft one, which is what reads as "lifted"
+     rather than "outlined". The old set was roughly half this strength
+     and left every card sitting flat on the page. */
+  --el-1: 0 1px 2px rgba(16, 24, 40, 0.08);
+  --el-2: 0 1px 2px rgba(16, 24, 40, 0.06),
+          0 6px 16px -4px rgba(16, 24, 40, 0.14);
+  --el-3: 0 2px 4px rgba(16, 24, 40, 0.06),
+          0 14px 34px -8px rgba(16, 24, 40, 0.20);
+  --el-4: 0 4px 10px rgba(16, 24, 40, 0.08),
+          0 30px 70px -16px rgba(16, 24, 40, 0.28);
   --el-pane:
     inset 0 1px 0 var(--edge-light),
-    0 1px 2px rgba(16, 24, 40, 0.05),
-    0 18px 44px -16px rgba(16, 24, 40, 0.16),
-    0 48px 100px -50px rgba(14, 116, 144, 0.18);
+    0 1px 2px rgba(16, 24, 40, 0.06),
+    0 10px 24px -8px rgba(16, 24, 40, 0.13),
+    0 28px 60px -28px rgba(16, 24, 40, 0.20);
 
   --scrollbar-thumb: rgba(16, 24, 40, 0.22);
 
@@ -352,9 +381,11 @@ body {
   opacity: 0.28;
 }
 
-[data-theme="light"] .ambient-a { opacity: 0.34; }
-[data-theme="light"] .ambient-b { opacity: 0.30; }
-[data-theme="light"] .ambient-c { opacity: 0.20; }
+/* The aurora has to work harder on a light ground: the same opacity that
+   glows against near-black barely tints a pale grey. */
+[data-theme="light"] .ambient-a { opacity: 0.44; }
+[data-theme="light"] .ambient-b { opacity: 0.40; }
+[data-theme="light"] .ambient-c { opacity: 0.28; }
 
 /* Everything above the field */
 .header,
@@ -476,10 +507,24 @@ body {
   white-space: nowrap;
 }
 
+/* "MD" is the half of the name that says what this is, so it carries the
+   accent rather than receding into grey. Solid colour is the base state;
+   the gradient is layered on only where background-clip: text works —
+   applying -webkit-text-fill-color: transparent unconditionally would
+   render the wordmark invisible wherever the clip isn't supported. */
 .logo-name-alt {
-  font-weight: 450;
-  color: var(--text-muted);
-  margin-left: 5px;
+  font-weight: 700;
+  color: var(--accent);
+  margin-left: 6px;
+}
+
+@supports ((-webkit-background-clip: text) or (background-clip: text)) {
+  .logo-name-alt {
+    background: var(--wordmark-gradient);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
 }
 
 /* --- Action clusters --- */
@@ -977,6 +1022,11 @@ body {
   overflow: auto;
   position: relative;
   min-width: 0;
+  /* A second container, measuring the reading column itself. Unlike
+     panebody this excludes a docked outline, so content that widens into
+     the margins can never reach under the outline panel. */
+  container-type: inline-size;
+  container-name: readingcol;
 }
 
 /* ============================================================
@@ -1893,6 +1943,37 @@ body {
    print block so the print rule wins there. */
 #preview .mermaid-print { display: none; }
 
+/* ------------------------------------------------------------------
+   Wide blocks: using the margins without stretching the text
+
+   Prose stays at its measure — ~75 characters is where long-form reading
+   is comfortable, and a paragraph run across a 1900px monitor is harder
+   to read, not easier. But a table, a diagram or a code listing is
+   *scanned*, not read line by line, and those genuinely want the room.
+   So the reading column stays put and only these blocks widen into the
+   margin either side, by an amount the column's own width can afford.
+   ------------------------------------------------------------------ */
+#preview { --bleed: 0px; }
+
+@container readingcol (min-width: 980px)  { #preview { --bleed: 52px; } }
+@container readingcol (min-width: 1200px) { #preview { --bleed: 104px; } }
+@container readingcol (min-width: 1440px) { #preview { --bleed: 156px; } }
+
+/* No transition here on purpose: width and margin are layout properties,
+   and --bleed only changes while the pane is already being resized (a
+   divider drag, a window resize, the outline opening). Easing them would
+   put a layout pass on every frame of a drag and buy nothing. */
+#preview > table,
+#preview > .code-block,
+#preview > .mermaid,
+#preview > p:has(> img:only-child) {
+  width: calc(100% + var(--bleed) * 2);
+  max-width: none;
+  margin-left: calc(var(--bleed) * -1);
+  margin-right: calc(var(--bleed) * -1);
+}
+
+
 /* --- GitHub alerts --- */
 .markdown-alert {
   margin: var(--sp-5) 0;
@@ -2421,6 +2502,32 @@ body.reader-mode #preview {
   }
 }
 
+/* On a wide stage the outline becomes a quiet reading rail on the left —
+   the margin beside the column carries navigation rather than nothing.
+   It stays in flow, so the reading column simply centres in what is
+   left and never ends up sitting off-centre under the panel. */
+@container panebody (min-width: 1180px) {
+  body.reader-mode .outline {
+    order: -1;
+    background: transparent;
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    box-shadow: none;
+    border-left: 0;
+    border-right: 1px solid transparent;
+  }
+
+  body.reader-mode .outline.open {
+    width: 260px;
+    border-right-color: var(--border-hair);
+  }
+
+  body.reader-mode .outline-inner {
+    width: 260px;
+    padding-top: var(--sp-4);
+  }
+}
+
 /* Entering reader mode re-composes the stage rather than cutting to it */
 body.reader-mode #previewPane {
   animation: reader-morph var(--dur-4) var(--ease-out);
@@ -2827,6 +2934,8 @@ body {
   #preview {
     max-width: none;
     padding: 0;
+    /* Paper has no margin to bleed into — the page box is the measure. */
+    --bleed: 0px;
   }
 
   #preview > [data-line]:hover { outline: none; }

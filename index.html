@@ -7,7 +7,9 @@
   <meta name="theme-color" content="#060810" />
   <link rel="apple-touch-icon" href="/icons/icon-192.png" />
   <meta name="description" content="Read Your MD — a fast, beautiful Markdown reader and editor with live preview, diagrams, outline navigation, and in-place saving." />
-  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%2322d3ee'/%3E%3Cstop offset='1' stop-color='%23818cf8'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='32' height='32' rx='9' fill='url(%23g)'/%3E%3Cpath d='M7 21v-10l4 4.5 4-4.5v10' fill='none' stroke='%2304222b' stroke-width='2.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3Cpath d='M23 11v7m0 0l-3-3m3 3l3-3' fill='none' stroke='%2304222b' stroke-width='2.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E" />
+  <!-- Favicon carries the same Descender M, drawn on the 24 grid with a
+       heavier stroke: at 16px the header's 2.3 renders under 1.6 device px. -->
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%2322d3ee'/%3E%3Cstop offset='1' stop-color='%23818cf8'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='24' height='24' rx='6.5' fill='url(%23g)'/%3E%3Cg fill='none' stroke='%2304222b' stroke-width='2.7' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M6.4 15.6V6.4l4.3 5.2 4.3-5.2v11.2'/%3E%3Cpath d='m12.3 15 2.7 2.6 2.7-2.6'/%3E%3C/g%3E%3C/svg%3E" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;450;500;550;600;650;700&family=Lora:ital,wght@0,400;0,500;0,600;1,400&family=JetBrains+Mono:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet" />
@@ -26,9 +28,12 @@
     <div class="header-left">
       <div class="header-logo">
         <span class="logo-mark" aria-hidden="true">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M4.5 16.5v-9l3.25 3.75L11 7.5v9" />
-            <path d="M16.75 7.5v7m0 0-2.5-2.5m2.5 2.5 2.5-2.5" />
+          <!-- Descender M: the M's right leg runs past the baseline and ends
+               in the arrowhead, so the mark is one continuous gesture rather
+               than a letter with a second glyph parked beside it. -->
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M6.4 15.6V6.4l4.3 5.2 4.3-5.2v11.2" />
+            <path d="m12.3 15 2.7 2.6 2.7-2.6" />
           </svg>
         </span>
         <span class="logo-name">Read Your<span class="logo-name-alt">MD</span></span>
