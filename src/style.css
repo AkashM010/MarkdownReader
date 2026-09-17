@@ -2427,6 +2427,44 @@ body.resizing .editor-marker {
   overflow-y: auto;
 }
 
+/* --- Confirm dialog --- */
+.dialog-sm {
+  width: min(440px, 100%);
+}
+
+.confirm-message {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.55;
+  color: var(--text-secondary);
+}
+
+.dialog-actions {
+  display: flex;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: var(--sp-2);
+  padding: var(--sp-4) var(--sp-5) var(--sp-5);
+  border-top: 1px solid var(--border-hair);
+}
+
+.dialog-actions .action-btn {
+  height: 36px;
+  padding: 0 var(--sp-4);
+}
+
+/* The destructive choice is named, not coloured red and left ambiguous —
+   colour alone never carries the meaning. */
+.action-btn.danger {
+  color: var(--alert-caution-text);
+  border-color: var(--alert-caution-border);
+}
+
+.action-btn.danger:hover:not(:disabled) {
+  color: var(--alert-caution-text);
+  background: var(--alert-caution-bg);
+}
+
 .kbd-section { margin-top: var(--sp-4); }
 
 .kbd-section h3 {
@@ -2771,14 +2809,38 @@ body {
   .status-bar .status-right { gap: var(--sp-4); }
 }
 
+/* --- Header triage -------------------------------------------------
+   The header cannot scroll: the page clips overflow-x, and giving the
+   action row its own scroller would clip the dropdown menus that hang
+   out of it. So anything that doesn't fit is simply unreachable, and the
+   row has to shed controls before that happens. Thresholds below are
+   measured, not guessed — each is the width at which the remaining set
+   stops fitting. Least-costly first: decoration, then the shortcuts that
+   have keyboard equivalents.
+   Note these must sit outside the 480px block: the wordmark used to be
+   hidden only there, so it reappeared at 500px with no room for it. */
+
+/* 1. History — undo/redo, both reachable via Ctrl+Z / Ctrl+Y */
+@media (max-width: 620px) {
+  .hdr-history { display: none; }
+}
+
+/* 2. The wordmark — the logo tile still identifies the app */
+@media (max-width: 520px) {
+  .logo-name { display: none; }
+}
+
+/* 3. Help — last out, and only on the narrowest phones */
+@media (max-width: 380px) {
+  #helpBtn { display: none; }
+}
+
 @media (max-width: 480px) {
   .header { padding: 0 var(--sp-2); gap: var(--sp-2); }
   .header-actions { gap: 5px; }
   .hdr-cluster { padding: 2px; }
   .status-bar .status-right { display: none; }
   .header-separator { display: none; }
-  #redoBtn { display: none; }
-  .logo-name { display: none; }
 }
 
 /* ============================================================

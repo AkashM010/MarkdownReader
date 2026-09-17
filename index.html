@@ -43,6 +43,15 @@
     <div class="header-actions">
       <!-- Cluster 1 — the document -->
       <div class="hdr-cluster">
+        <button class="action-btn" id="newBtn" title="New document (Ctrl+Alt+N)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+            <polyline points="14 2 14 8 20 8"/>
+            <line x1="12" y1="18" x2="12" y2="12"/>
+            <line x1="9" y1="15" x2="15" y2="15"/>
+          </svg>
+          <span class="action-label">New</span>
+        </button>
         <button class="action-btn" id="openBtn" title="Open .md file (Ctrl+O)">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/>
@@ -84,7 +93,7 @@
       </div>
 
       <!-- Cluster 2 — history -->
-      <div class="hdr-cluster">
+      <div class="hdr-cluster hdr-history">
         <button class="action-btn icon-only" id="undoBtn" title="Undo (Ctrl+Z)" aria-label="Undo" disabled>
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <polyline points="1 4 1 10 7 10"/>
@@ -368,6 +377,7 @@
       <div class="dialog-body">
         <div class="kbd-section">
           <h3>Document</h3>
+          <div class="kbd-row"><span>New document</span><kbd>Ctrl+Alt+N</kbd></div>
           <div class="kbd-row"><span>Open file</span><kbd>Ctrl+O</kbd></div>
           <div class="kbd-row"><span>Save (in place when a file is open)</span><kbd>Ctrl+S</kbd></div>
           <div class="kbd-row"><span>Save as…</span><kbd>Ctrl+Shift+S</kbd></div>

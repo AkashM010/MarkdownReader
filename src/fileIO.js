@@ -5,12 +5,14 @@
  * <input type="file"> and blob downloads elsewhere.
  */
 import { getEditorContent, setEditorContent, updateAll } from './editor.js';
-import { renderNow, setStatus } from './preview.js';
+import { renderNow, setStatus, headingText } from './preview.js';
 import { flushDraft } from './persistence.js';
+import { askConfirm } from './confirm.js';
 
 let fileInput = null;
 let previewLoading = null;
 let fileNameBadge = null;
+let editorEl = null;
 let showToast = null;
 
 let fileHandle = null;
@@ -33,10 +35,12 @@ export function initFileIO(elements, toastFn) {
   fileInput = elements.fileInput;
   previewLoading = elements.previewLoading;
   fileNameBadge = elements.fileNameBadge || null;
+  editorEl = elements.editor || null;
   showToast = toastFn;
 
   elements.saveBtn.addEventListener('click', () => saveFile());
   elements.openBtn.addEventListener('click', () => openFile());
+  elements.newBtn?.addEventListener('click', () => newFile());
 
   fileInput.addEventListener('change', (e) => {
     const file = e.target.files?.[0];
@@ -67,6 +71,12 @@ export function initFileIO(elements, toastFn) {
     } else if (key === 'o') {
       e.preventDefault();
       openFile();
+    } else if (key === 'n' && e.altKey) {
+      // Ctrl+N and Ctrl+Shift+N belong to the browser (new window,
+      // new incognito window) and cannot be prevented from a tab, so
+      // the new-document shortcut takes the next free combination.
+      e.preventDefault();
+      newFile();
     }
   });
 
@@ -112,6 +122,52 @@ export async function openHandle(handle) {
 export function restoreFileName(name) {
   if (name) currentFileName = name;
   updateFileBadge();
+}
+
+// ──────────────────────────────────────
+// New
+// ──────────────────────────────────────
+
+/** Work that would be lost by starting over. An empty buffer is not work. */
+function hasUnsavedWork() {
+  return isDirty && getEditorContent().trim().length > 0;
+}
+
+/**
+ * Start a blank document. Asks first when that would discard edits —
+ * autosave protects the draft only until the next document replaces it,
+ * so "New" is genuinely destructive and cannot be silent.
+ */
+export async function newFile() {
+  if (hasUnsavedWork()) {
+    const choice = await askConfirm({
+      title: 'Start a new document?',
+      message: fileHandle
+        ? `${currentFileName} has unsaved changes. They will be lost unless you save first.`
+        : 'This draft has never been saved to a file. Starting a new document will clear it.',
+      // Safe choice last: it takes the initial focus, so a stray Enter
+      // cannot discard the document.
+      actions: [
+        { id: 'discard', label: 'Discard', variant: 'danger' },
+        { id: 'cancel', label: 'Cancel' },
+        { id: 'save', label: 'Save first', variant: 'primary' },
+      ],
+    });
+    if (choice === 'cancel') return;
+    // A cancelled or failed save must not take the document with it.
+    if (choice === 'save' && !(await saveFile())) return;
+  }
+
+  setEditorContent('');
+  currentFileName = 'untitled.md';
+  fileHandle = null;
+  isDirty = false;
+  updateFileBadge();
+  updateAll();
+  renderNow('');
+  flushDraft();
+  editorEl?.focus();
+  showToast('New document');
 }
 
 // ──────────────────────────────────────
@@ -193,37 +249,50 @@ function handleDrop(e) {
 // Save
 // ──────────────────────────────────────
 
-async function saveFile() {
-  if (supportsFS) {
-    if (fileHandle) {
-      await writeToHandle(fileHandle);
-    } else {
-      await saveFileAs();
-    }
-  } else {
-    downloadFile();
-  }
+/**
+ * What to put in the save picker's name field for a document that has
+ * never been saved. "untitled.md" tells the user nothing; their own H1
+ * usually names the file better than they would at the prompt.
+ */
+function suggestedFileName() {
+  if (currentFileName !== 'untitled.md') return currentFileName;
+  const h1 = document.querySelector('#preview h1');
+  const title = h1 ? headingText(h1) : '';
+  const slug = title
+    .toLowerCase()
+    .replace(/[^\p{L}\p{N}\s-]/gu, '')
+    .trim()
+    .replace(/\s+/g, '-')
+    .slice(0, 60)
+    .replace(/-+$/, '');
+  return slug ? `${slug}.md` : currentFileName;
 }
 
+/** @returns {Promise<boolean>} whether the document is now on disk. */
+async function saveFile() {
+  if (!supportsFS) return downloadFile();
+  return fileHandle ? writeToHandle(fileHandle) : saveFileAs();
+}
+
+/** @returns {Promise<boolean>} */
 async function saveFileAs() {
-  if (!supportsFS) {
-    downloadFile();
-    return;
-  }
+  if (!supportsFS) return downloadFile();
   try {
     const handle = await window.showSaveFilePicker({
-      suggestedName: currentFileName,
+      suggestedName: suggestedFileName(),
       types: FILE_TYPES,
     });
-    await writeToHandle(handle);
+    return await writeToHandle(handle);
   } catch (err) {
     if (err?.name !== 'AbortError') {
       console.warn('Save failed:', err);
       showToast('Could not save file', 3000);
     }
+    return false;
   }
 }
 
+/** @returns {Promise<boolean>} */
 async function writeToHandle(handle) {
   try {
     const writable = await handle.createWritable();
@@ -236,18 +305,28 @@ async function writeToHandle(handle) {
     flushDraft();
     showToast(`Saved ${currentFileName}`);
     announceHandle(handle);
+    return true;
   } catch (err) {
-    if (err?.name === 'AbortError') return;
-    console.warn('Save failed:', err);
-    showToast(
-      err?.name === 'NotAllowedError' ? 'Write permission denied' : 'Could not save file',
-      3000
-    );
+    if (err?.name !== 'AbortError') {
+      console.warn('Save failed:', err);
+      showToast(
+        err?.name === 'NotAllowedError' ? 'Write permission denied' : 'Could not save file',
+        3000
+      );
+    }
+    return false;
   }
 }
 
+/**
+ * Fallback for browsers without the File System Access API (Firefox,
+ * Safari). They offer no way to ask where a file should go, so the best
+ * available behaviour is a download with a name worth keeping.
+ * @returns {boolean}
+ */
 function downloadFile() {
   const content = getEditorContent();
+  if (currentFileName === 'untitled.md') currentFileName = suggestedFileName();
   const blob = new Blob([content], { type: 'text/markdown;charset=utf-8' });
   const url = URL.createObjectURL(blob);
   const a = document.createElement('a');
@@ -261,6 +340,7 @@ function downloadFile() {
   updateFileBadge();
   flushDraft();
   showToast(`Downloaded ${currentFileName}`);
+  return true;
 }
 
 // ──────────────────────────────────────

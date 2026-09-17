@@ -447,6 +447,8 @@ initFileIO(
   {
     saveBtn: saveBtnEl,
     openBtn: openBtnEl,
+    newBtn: $('newBtn'),
+    editor: editorEl,
     fileInput: fileInputEl,
     previewLoading: previewLoadingEl,
     renderStatus: renderStatusEl,
