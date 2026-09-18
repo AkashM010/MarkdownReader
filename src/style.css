@@ -2839,7 +2839,12 @@ body {
   .header { padding: 0 var(--sp-2); gap: var(--sp-2); }
   .header-actions { gap: 5px; }
   .hdr-cluster { padding: 2px; }
-  .status-bar .status-right { display: none; }
+  /* Keep the app version available in the compact footer. The save message
+     and theme name can make room for it because they are already shown in
+     the interface itself. */
+  .status-bar .status-right { display: flex; margin-left: auto; }
+  .status-bar .autosave-item,
+  .status-bar .theme-item { display: none; }
   .header-separator { display: none; }
 }
 

@@ -5,7 +5,7 @@
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/version-2.0.1-teal.svg?style=flat-square" alt="Version 2.0.1" />
+  <img src="https://img.shields.io/badge/version-2.2.0-teal.svg?style=flat-square" alt="Version 2.2.0" />
   <img src="https://img.shields.io/badge/vite-6.x-646CFF.svg?style=flat-square&logo=vite&logoColor=white" alt="Vite" />
   <img src="https://img.shields.io/badge/pwa-ready-green.svg?style=flat-square" alt="PWA Ready" />
   <img src="https://img.shields.io/badge/playwright-tested-45ba4b.svg?style=flat-square&logo=playwright&logoColor=white" alt="Playwright" />
